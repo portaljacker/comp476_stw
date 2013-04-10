@@ -127,7 +127,8 @@ namespace SuperTank
                             t1.CurrentFrame = 0;
                             t1.updateRectangles();
                         }
-                       
+
+                        t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
                         break;
 
                     case Keys.A:
