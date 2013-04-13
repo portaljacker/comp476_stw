@@ -103,7 +103,7 @@ namespace SuperTank
             origin = new Vector2(width / 2, height / 2);
             position = pos;
             target = tar;
-            lifeTime = 100;
+            lifeTime = 530;
         }
 
         public void Move()

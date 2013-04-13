@@ -22,6 +22,9 @@ namespace SuperTank
         Texture2D tankTex;
         Texture2D reticle;
         Texture2D bullet;
+        Texture2D tiles;
+
+        Map m1;
         Tank t1;
         float timer = 0f;
         float interval = 100f;
@@ -39,7 +42,7 @@ namespace SuperTank
             Content.RootDirectory = "Content";
 
             graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferHeight = 780;
         }
 
         /// <summary>
@@ -67,7 +70,10 @@ namespace SuperTank
             reticle = Content.Load<Texture2D>("reticle");
             tankTex = Content.Load<Texture2D>("tanksheet4");
             bullet = Content.Load<Texture2D>("bullet");
-            t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), 0);
+            tiles = Content.Load<Texture2D>("tiles");
+
+            m1 = new Map(tiles);
+            t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2), 0);
 
             bm = new BulletManager(bullet);
 
@@ -113,7 +119,7 @@ namespace SuperTank
                             timer = 0f;
                         }
 
-                        if (t1.CurrentFrame == 2) 
+                        if (t1.CurrentFrame == 2)
                         {
                             t1.CurrentFrame = 0;
                             t1.updateRectangles();
@@ -161,17 +167,17 @@ namespace SuperTank
                         }
                         break;
                 }
-                
+
             }
 
             Vector2 aim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
             if (Mouse.GetState().X > t1.Position.X && Mouse.GetState().Y > t1.Position.Y)
             {
-                t1.CannonAngle = (float)Math.Atan2(aim.Y , aim.X);
+                t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
             }
             else
             {
-                t1.CannonAngle = (float)Math.Atan2(aim.Y , aim.X);
+                t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
             }
 
             if (fireCount > 0)
@@ -184,7 +190,7 @@ namespace SuperTank
                 fireCount = 100;
             }
 
-            bm.update();
+            bm.update(m1);
 
             base.Update(gameTime);
         }
@@ -195,20 +201,23 @@ namespace SuperTank
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.SandyBrown);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            m1.Draw(spriteBatch);
+
             t1.Draw(spriteBatch);
-            spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9/2, 9/2), 1.0f, SpriteEffects.None, 0);
-            
-            foreach(Bullet b in bm.Bullets)
+
+            foreach (Bullet b in bm.Bullets)
             {
-                if (b.LifeTime < 91)
+                if (b.LifeTime < 521)
                 {
                     b.Draw(spriteBatch);
                 }
             }
+
+            spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
