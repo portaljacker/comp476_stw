@@ -25,6 +25,7 @@ namespace SuperTank
         private int tankColor;
         private float chassisAngle;
         private float cannonAngle;
+        //private BoundingBox tankBox;
 
         //Accessors and mutators.
         public Texture2D Texture
@@ -137,6 +138,7 @@ namespace SuperTank
             currentFrame = 0;
             chassisAngle = 0;
             cannonAngle = 0;
+            //tankBox = new BoundingBox(,);
         }
 
         public void updateRectangles()

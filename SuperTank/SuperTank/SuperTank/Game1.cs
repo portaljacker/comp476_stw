@@ -35,6 +35,8 @@ namespace SuperTank
 
         KeyboardState ks;
         KeyboardState lastKs;
+        MouseState ms;
+        MouseState lastMs;
 
         public Game1()
         {
@@ -103,6 +105,17 @@ namespace SuperTank
             lastKs = ks;
             ks = Keyboard.GetState();
             Keys[] keys = ks.GetPressedKeys();
+
+            lastMs = ms;
+            ms = Mouse.GetState();
+            if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
+            {
+                if (canFire)
+                {
+                    bm.createBullet(t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                    canFire = false;
+                }
+            }
 
             foreach (Keys key in keys)
             {
