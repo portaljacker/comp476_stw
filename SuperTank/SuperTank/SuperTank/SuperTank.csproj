@@ -74,11 +74,14 @@
   <ItemGroup>
     <Compile Include="Bullet.cs" />
     <Compile Include="BulletManager.cs" />
+    <Compile Include="Button.cs" />
+    <Compile Include="Line.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Tank.cs" />
+    <Compile Include="Tutorial.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

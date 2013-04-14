@@ -16,8 +16,61 @@ namespace SuperTank
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
+        public GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        Tutorial ctrlsTutorial;
+
+        // Buttons
+        private Button[] btnArray = new Button[3];
+
+        private Button btnPlay;
+        private Button btnControls;
+        private Button btnBack;
+        private Button btnExit;
+
+        // main menu background
+        private Texture2D menuBackground;
+
+        // controls screen background
+        private Texture2D controlsBackground;
+
+        // title
+        private Texture2D title;
+
+        private Texture2D hat1;
+        private Texture2D hat2;
+        private Texture2D hat3;
+
+        // enum for the different states of the game
+        enum GameState
+        {
+            MainMenu,
+            Tutorial,
+            Play,
+            Controls,
+            Win,
+            Lose,
+            Exit,
+        }
+
+        // enum for the different parts of the tutorial
+        enum TutorialState
+        {
+            Tutorial1,
+            Tutorial2,
+            Tutorial3,
+            Tutorial4,
+            Tutorial5,
+            Tutorial6,
+            Tutorial7,
+            Tutorial8,
+            Tutorial9,
+            Tutorial10,
+            Tutorial11,
+        }
+
+        GameState currentGameState = GameState.MainMenu;
 
         Texture2D tankTex;
         Texture2D reticle;
@@ -58,6 +111,12 @@ namespace SuperTank
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            spriteBatch = new SpriteBatch(this.graphics.GraphicsDevice);
+
+            btnArray[0] = btnPlay;
+            btnArray[1] = btnControls;
+            btnArray[2] = btnExit;
         }
 
         /// <summary>
@@ -79,6 +138,46 @@ namespace SuperTank
 
             bm = new BulletManager(bullet);
 
+            //display the mouse
+            IsMouseVisible = true;
+
+            Viewport viewPort = new Viewport();
+            viewPort.X = 0;
+            viewPort.Y = 0;
+            viewPort.Width = graphics.PreferredBackBufferWidth;
+            viewPort.Height = graphics.PreferredBackBufferHeight + graphics.PreferredBackBufferHeight / 20;
+
+            ctrlsTutorial = new Tutorial(this, Content, viewPort, this.graphics.GraphicsDevice);
+
+            ctrlsTutorial.AKeyText = "Move Left";
+            ctrlsTutorial.WKeyText = "Move Up";
+            ctrlsTutorial.SKeyText = "Move Down";
+            ctrlsTutorial.DKeyText = "Move Right";
+
+            ctrlsTutorial.LeftMouseClickText = "FIRE!";
+            ctrlsTutorial.LeftMouseClickText = "FIRE!";
+
+            // title
+            title = Content.Load<Texture2D>("title");
+
+            // menu items
+            btnPlay = new Button(Content.Load<Texture2D>("btnPlay"), graphics.GraphicsDevice);
+            btnPlay.SetPosition(new Vector2((graphics.PreferredBackBufferWidth / 2) + graphics.PreferredBackBufferWidth / 12, (graphics.PreferredBackBufferHeight / 3)));
+            btnControls = new Button(Content.Load<Texture2D>("btnControls"), graphics.GraphicsDevice);
+            btnControls.SetPosition(new Vector2((int)(graphics.PreferredBackBufferWidth / 2) + graphics.PreferredBackBufferWidth / 12, (int)(graphics.PreferredBackBufferHeight / 3) + (int)(graphics.PreferredBackBufferHeight / 6)));
+            btnExit = new Button(Content.Load<Texture2D>("btnExit"), graphics.GraphicsDevice);
+            btnExit.SetPosition(new Vector2((int)(graphics.PreferredBackBufferWidth / 2) + graphics.PreferredBackBufferWidth / 12, (int)(graphics.PreferredBackBufferHeight / 3) + (int)(graphics.PreferredBackBufferHeight / 3)));
+
+            // controls screen button
+            btnBack = new Button(Content.Load<Texture2D>("btnBack"), graphics.GraphicsDevice);
+            btnBack.SetPosition(new Vector2(graphics.PreferredBackBufferWidth / 24, graphics.PreferredBackBufferHeight - ((btnBack.size.Y) + graphics.PreferredBackBufferHeight / 24)));
+
+            menuBackground = Content.Load<Texture2D>("castleMenuBack");
+            controlsBackground = Content.Load<Texture2D>("tankSchem");
+
+            hat1 = Content.Load<Texture2D>("hat1");
+            hat2 = Content.Load<Texture2D>("hat2");
+            hat3 = Content.Load<Texture2D>("hat3");
             // TODO: use this.Content to load your game content here
         }
 
@@ -108,69 +207,34 @@ namespace SuperTank
 
             lastMs = ms;
             ms = Mouse.GetState();
-            if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
+
+            switch (currentGameState)
             {
-                if (canFire)
-                {
-                    bm.createBullet(t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
-                    canFire = false;
-                }
-            }
-
-            foreach (Keys key in keys)
-            {
-                switch (key)
-                {
-                    case Keys.W:
-                        timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                        if (timer > interval)
-                        {
-                            //Show the next frame
-                            t1.CurrentFrame++;
-                            t1.updateRectangles();
-                            //Reset the timer
-                            timer = 0f;
-                        }
-
-                        if (t1.CurrentFrame == 2)
-                        {
-                            t1.CurrentFrame = 0;
-                            t1.updateRectangles();
-                        }
-
-                        t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
-                        break;
-
-                    case Keys.S:
-                        timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                        if (timer > interval)
-                        {
-                            //Show the next frame
-                            t1.CurrentFrame++;
-                            t1.updateRectangles();
-                            //Reset the timer
-                            timer = 0f;
-                        }
-
-                        if (t1.CurrentFrame == 2)
-                        {
-                            t1.CurrentFrame = 0;
-                            t1.updateRectangles();
-                        }
-
-                        t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
-                        break;
-
-                    case Keys.A:
-                        t1.ChassisAngle -= 0.03f;
-                        break;
-
-                    case Keys.D:
-                        t1.ChassisAngle += 0.03f;
-                        break;
-
-                    case Keys.Space:
-                        if (lastKs.IsKeyUp(Keys.Space))
+                case GameState.MainMenu:
+                    if (btnArray[0].isClicked == true)
+                        currentGameState = GameState.Play;
+                    else if (btnArray[1].isClicked == true)
+                    {
+                        currentGameState = GameState.Controls;
+                        if (btnBack.isClicked == true)
+                            btnBack.isClicked = false;
+                    }
+                    else if (btnArray[2].isClicked == true)
+                        this.Exit();
+                    btnArray[0].Update(ms);
+                    btnArray[1].Update(ms);
+                    btnArray[2].Update(ms);
+                    break;
+                case GameState.Controls:
+                    if (btnBack.isClicked == true)
+                    {
+                        currentGameState = GameState.MainMenu;
+                        btnArray[1].isClicked = false;
+                    }
+                    btnBack.Update(ms);
+                    break;
+                case GameState.Play:
+                        if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
                         {
                             if (canFire)
                             {
@@ -178,33 +242,96 @@ namespace SuperTank
                                 canFire = false;
                             }
                         }
+
+                        foreach (Keys key in keys)
+                        {
+                            switch (key)
+                            {
+                                case Keys.W:
+                                    timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                                    if (timer > interval)
+                                    {
+                                        //Show the next frame
+                                        t1.CurrentFrame++;
+                                        t1.updateRectangles();
+                                        //Reset the timer
+                                        timer = 0f;
+                                    }
+
+                                    if (t1.CurrentFrame == 2)
+                                    {
+                                        t1.CurrentFrame = 0;
+                                        t1.updateRectangles();
+                                    }
+
+                                    t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                    break;
+
+                                case Keys.S:
+                                    timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                                    if (timer > interval)
+                                    {
+                                        //Show the next frame
+                                        t1.CurrentFrame++;
+                                        t1.updateRectangles();
+                                        //Reset the timer
+                                        timer = 0f;
+                                    }
+
+                                    if (t1.CurrentFrame == 2)
+                                    {
+                                        t1.CurrentFrame = 0;
+                                        t1.updateRectangles();
+                                    }
+
+                                    t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                    break;
+
+                                case Keys.A:
+                                    t1.ChassisAngle -= 0.03f;
+                                    break;
+
+                                case Keys.D:
+                                    t1.ChassisAngle += 0.03f;
+                                    break;
+
+                                case Keys.Space:
+                                    if (lastKs.IsKeyUp(Keys.Space))
+                                    {
+                                        if (canFire)
+                                        {
+                                            bm.createBullet(t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                                            canFire = false;
+                                        }
+                                    }
+                                    break;
+                            }
+
+                        }
+
+                        Vector2 aim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
+                        if (Mouse.GetState().X > t1.Position.X && Mouse.GetState().Y > t1.Position.Y)
+                        {
+                            t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                        }
+                        else
+                        {
+                            t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                        }
+
+                        if (fireCount > 0)
+                        {
+                            fireCount--;
+                        }
+                        else
+                        {
+                            canFire = true;
+                            fireCount = 100;
+                        }
+
+                        bm.update(m1);
                         break;
-                }
-
-            }
-
-            Vector2 aim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
-            if (Mouse.GetState().X > t1.Position.X && Mouse.GetState().Y > t1.Position.Y)
-            {
-                t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
-            }
-            else
-            {
-                t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
-            }
-
-            if (fireCount > 0)
-            {
-                fireCount--;
-            }
-            else
-            {
-                canFire = true;
-                fireCount = 100;
-            }
-
-            bm.update(m1);
-
+                    }
             base.Update(gameTime);
         }
 
@@ -218,19 +345,40 @@ namespace SuperTank
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            m1.Draw(spriteBatch);
 
-            t1.Draw(spriteBatch);
-
-            foreach (Bullet b in bm.Bullets)
+            switch (currentGameState)
             {
-                if (b.LifeTime < 521)
-                {
-                    b.Draw(spriteBatch);
-                }
+                case GameState.MainMenu:
+                    spriteBatch.Draw(menuBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
+                    spriteBatch.Draw(title, new Rectangle((graphics.PreferredBackBufferWidth / 10) - (graphics.PreferredBackBufferWidth / 15), (graphics.PreferredBackBufferHeight / 12) - graphics.PreferredBackBufferHeight / 15, (5 * graphics.PreferredBackBufferWidth / 9), (5 * graphics.PreferredBackBufferHeight / 9)), Color.White);
+                    spriteBatch.Draw(hat1, new Rectangle((2 * graphics.PreferredBackBufferWidth / 3), graphics.PreferredBackBufferHeight / 15, graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10), null, Color.White, 1.2f, new Vector2(0, 0), SpriteEffects.None, 0);
+                    spriteBatch.Draw(hat2, new Rectangle((graphics.PreferredBackBufferWidth / 10) - (graphics.PreferredBackBufferWidth / 18), (2 * graphics.PreferredBackBufferHeight / 3), graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10), null, Color.White, 4.0f, new Vector2(0, 0), SpriteEffects.None, 0);
+                    spriteBatch.Draw(hat3, new Rectangle(graphics.PreferredBackBufferWidth / 2, (2 * graphics.PreferredBackBufferHeight / 3), graphics.PreferredBackBufferWidth / 12, graphics.PreferredBackBufferHeight / 10), null, Color.White, 2.8f, new Vector2(0, 0), SpriteEffects.None, 0);
+                    btnArray[0].Draw(spriteBatch);
+                    btnArray[1].Draw(spriteBatch);
+                    btnArray[2].Draw(spriteBatch);
+                    break;
+                case GameState.Controls:
+                    spriteBatch.Draw(controlsBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
+                    ctrlsTutorial.Draw(spriteBatch);
+                    btnBack.Draw(spriteBatch);
+                    break;
+                case GameState.Play:
+                    m1.Draw(spriteBatch);
+                    t1.Draw(spriteBatch);
+
+                    foreach (Bullet b in bm.Bullets)
+                    {
+                        if (b.LifeTime < 521)
+                        {
+                            b.Draw(spriteBatch);
+                        }
+                    }
+
+                    spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+                    break;
             }
 
-            spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
