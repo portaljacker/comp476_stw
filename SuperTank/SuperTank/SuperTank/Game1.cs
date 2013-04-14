@@ -133,8 +133,10 @@ namespace SuperTank
             bullet = Content.Load<Texture2D>("bullet");
             tiles = Content.Load<Texture2D>("tiles");
 
+            Tank.texture2 = bullet;
+
             m1 = new Map(tiles);
-            t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2), 0);
+            t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), 0);
 
             bm = new BulletManager(bullet);
 
@@ -234,6 +236,7 @@ namespace SuperTank
                     btnBack.Update(ms);
                     break;
                 case GameState.Play:
+                    IsMouseVisible = false;
                         if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
                         {
                             if (canFire)
@@ -265,6 +268,22 @@ namespace SuperTank
                                     }
 
                                     t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                    t1.updateSpheres();
+                                    foreach(BoundingSphere b in m1.Walls)
+                                    {
+                                        for (int i = 0; i < t1.Spheres.Count; i++)
+                                        {
+                                            int x = (int)Math.Floor(t1.Spheres[i].Center.X / 20);
+                                            int y = (int)Math.Floor(t1.Spheres[i].Center.Y / 20);
+
+                                            if (t1.Spheres[i].Intersects(b))
+                                            {
+                                                t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                                t1.updateSpheres();
+                                                break;
+                                            }
+                                        }
+                                    }
                                     break;
 
                                 case Keys.S:
@@ -285,14 +304,59 @@ namespace SuperTank
                                     }
 
                                     t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                    t1.updateSpheres();
+                                    foreach (BoundingSphere b in m1.Walls)
+                                    {
+                                        for (int i = 0; i < t1.Spheres.Count; i++)
+                                        {
+
+                                            if (t1.Spheres[i].Intersects(b))
+                                            {
+
+                                                t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                                t1.updateSpheres();
+                                                break;
+                                            }
+                                        }
+                                    }
                                     break;
 
                                 case Keys.A:
                                     t1.ChassisAngle -= 0.03f;
+                                    t1.updateRectangles();
+                                    t1.updateSpheres();
+                                    foreach (BoundingSphere b in m1.Walls)
+                                    {
+                                        for (int i = 0; i < t1.Spheres.Count; i++)
+                                        {
+                                            if (t1.Spheres[i].Intersects(b))
+                                            {
+                                                t1.ChassisAngle += 0.03f;
+                                                t1.updateRectangles();
+                                                t1.updateSpheres();
+                                                break;
+                                            }
+                                        }
+                                    }
                                     break;
 
                                 case Keys.D:
                                     t1.ChassisAngle += 0.03f;
+                                    t1.updateRectangles();
+                                    t1.updateSpheres();
+                                    foreach (BoundingSphere b in m1.Walls)
+                                    {
+                                        for (int i = 0; i < t1.Spheres.Count; i++)
+                                        {
+                                            if (t1.Spheres[i].Intersects(b))
+                                            {
+                                                t1.ChassisAngle -= 0.03f;
+                                                t1.updateRectangles();
+                                                t1.updateSpheres();
+                                                break;
+                                            }
+                                        }
+                                    }
                                     break;
 
                                 case Keys.Space:
