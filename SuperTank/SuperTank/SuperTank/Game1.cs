@@ -35,8 +35,17 @@ namespace SuperTank
         // controls screen background
         private Texture2D controlsBackground;
 
+        // lose screen background
+        private Texture2D GameOver;
+
         // title
         private Texture2D title;
+
+        private Texture2D life;
+
+        SpriteFont pericles14;
+
+        private Vector2 livesLocation;
 
         private Texture2D hat1;
         private Texture2D hat2;
@@ -132,6 +141,16 @@ namespace SuperTank
             tankTex = Content.Load<Texture2D>("tanksheet4");
             bullet = Content.Load<Texture2D>("bullet");
             tiles = Content.Load<Texture2D>("tiles");
+
+            pericles14 = Content.Load<SpriteFont>("Pericles14");
+
+            GameOver = Content.Load<Texture2D>("gameOver");
+
+            int offset = 50;
+
+            livesLocation = new Vector2((graphics.PreferredBackBufferWidth / 30) + offset, (14 * graphics.PreferredBackBufferHeight / 15));
+
+            life = Content.Load<Texture2D>("life");
 
             Tank.texture2 = bullet;
 
@@ -236,6 +255,15 @@ namespace SuperTank
                     btnBack.Update(ms);
                     break;
                 case GameState.Play:
+                    KeyboardState mKeys = Keyboard.GetState();
+                    if (mKeys.IsKeyDown(Keys.Up) == true)
+                    {
+                        if (t1.LivesRemaining > 0)
+                            t1.LivesRemaining -= 1;
+                        else
+                            currentGameState = GameState.Lose;
+                    }
+
                     IsMouseVisible = false;
                         if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
                         {
@@ -422,6 +450,14 @@ namespace SuperTank
                     btnArray[1].Draw(spriteBatch);
                     btnArray[2].Draw(spriteBatch);
                     break;
+                case GameState.Lose:
+                    spriteBatch.Draw(GameOver, new Rectangle((graphics.PreferredBackBufferWidth / 2) - GameOver.Width / 2, (graphics.PreferredBackBufferHeight / 2) - GameOver.Height / 2, GameOver.Width, GameOver.Height), Color.White);
+                    spriteBatch.DrawString(
+                        pericles14,
+                        " You got stomped by wizards... in tanks ",
+                        new Vector2((graphics.PreferredBackBufferWidth / 2) - graphics.PreferredBackBufferWidth / 4, (graphics.PreferredBackBufferHeight / 2) + graphics.PreferredBackBufferHeight / 4),
+                        Color.DarkRed);
+                    break;
                 case GameState.Controls:
                     spriteBatch.Draw(controlsBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
                     ctrlsTutorial.Draw(spriteBatch);
@@ -440,6 +476,12 @@ namespace SuperTank
                     }
 
                     spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+                    spriteBatch.DrawString(
+                        pericles14,
+                        " X " + t1.LivesRemaining.ToString(),
+                        livesLocation,
+                        Color.White);
+                    spriteBatch.Draw(life, new Rectangle(graphics.PreferredBackBufferWidth / 30, (12 * graphics.PreferredBackBufferHeight / 13), life.Width, life.Height), Color.White);
                     break;
             }
 

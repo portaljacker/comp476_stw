@@ -34,7 +34,7 @@ namespace SuperTank
         public string SKeyText = string.Empty;
         public string DKeyText = string.Empty;
         public string LeftMouseClickText = string.Empty;
-        public string MouseText = string.Empty;
+        public string MouseMoveText = string.Empty;
 
         public Tutorial(Game game, ContentManager theContent, Viewport theViewport, GraphicsDevice theGraphicsDevice)
             : base(game)
@@ -72,10 +72,10 @@ namespace SuperTank
                 new Vector2(((Game1)Game).graphics.PreferredBackBufferWidth / 2 - (((Game1)Game).graphics.PreferredBackBufferWidth / 20),
                     (((Game1)Game).graphics.PreferredBackBufferHeight / 2) - (((Game1)Game).graphics.PreferredBackBufferHeight / 4) - (((Game1)Game).graphics.PreferredBackBufferHeight / 12)), content);
 
-            mouseLines1 = new Line(new Vector2((((Game1)Game).graphics.PreferredBackBufferWidth / 3),
+            mouseLines1 = new Line(new Vector2((2 * ((Game1)Game).graphics.PreferredBackBufferWidth / 3),
                 (((Game1)Game).graphics.PreferredBackBufferHeight / 2) - (((Game1)Game).graphics.PreferredBackBufferHeight / 4)),
-                new Vector2(((Game1)Game).graphics.PreferredBackBufferWidth / 2 - (((Game1)Game).graphics.PreferredBackBufferWidth / 20),
-                    (((Game1)Game).graphics.PreferredBackBufferHeight / 2) - (((Game1)Game).graphics.PreferredBackBufferHeight / 4) - (((Game1)Game).graphics.PreferredBackBufferHeight / 12)), content);
+                new Vector2(((Game1)Game).graphics.PreferredBackBufferWidth / 2,
+                    (((Game1)Game).graphics.PreferredBackBufferHeight / 2) - (((Game1)Game).graphics.PreferredBackBufferHeight / 8)), content);
 
             controlsLines.Add(Keys.A, new Line(new Vector2(((Game1)Game).graphics.PreferredBackBufferWidth / 7,
                 (((Game1)Game).graphics.PreferredBackBufferHeight / 2) + (((Game1)Game).graphics.PreferredBackBufferHeight / 4)),
@@ -121,16 +121,7 @@ namespace SuperTank
             DrawControllerText(SKeyText, Keys.S, batch, false);
 
             DrawControllerText(LeftMouseClickText, batch, true);
-            //DrawControllerText(LeftMouseClickText, , batch, true); 
-            //DrawControllerText(YButtonText, Buttons.Y, batch, false);
-            //DrawControllerText(LeftThumbStickText, Buttons.LeftStick, batch, true);
-            //DrawControllerText(RightThumbStickText, Buttons.RightStick, batch, false);
-            //DrawControllerText(LeftTriggerText, Buttons.LeftTrigger, batch, true);
-            //DrawControllerText(RightTriggerText, Buttons.RightTrigger, batch, false);
-            //DrawControllerText(LeftShoulderText, Buttons.LeftShoulder, batch, true);
-            //DrawControllerText(RightShoulderText, Buttons.RightShoulder, batch, false);
-            //DrawControllerText(BackButtonText, Buttons.Back, batch, true);
-            //DrawControllerText(StartButtonText, Buttons.Start, batch, false);
+            DrawControllerText1(MouseMoveText, batch, false);
         }
 
         // draw the line and the text that accompanies it
@@ -167,6 +158,24 @@ namespace SuperTank
 
                 int aYPos = (int)mouseLines.EndPointOne.Y - (int)(controlsText.MeasureString(mouseText).Y / 2);
                 batch.DrawString(controlsText, mouseText, new Vector2(aXPos, aYPos), Color.Black);
+            }
+        }
+
+        private void DrawControllerText1(string mouseText, SpriteBatch batch, bool isLeft)
+        {
+            if (mouseText != string.Empty)
+            {
+                mouseLines1.lineColor = Color.Black;
+                mouseLines1.Draw(batch);
+
+                int aXPos1 = 0;
+                if (isLeft)
+                    aXPos1 = (int)mouseLines1.EndPointOne.X - (int)controlsText.MeasureString(mouseText).X;
+                else
+                    aXPos1 = (int)mouseLines1.EndPointOne.X;
+
+                int aYPos1 = (int)mouseLines1.EndPointOne.Y - (int)(controlsText.MeasureString(mouseText).Y / 2);
+                batch.DrawString(controlsText, mouseText, new Vector2(aXPos1, aYPos1), Color.Black);
             }
         }
     }

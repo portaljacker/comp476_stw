@@ -28,6 +28,8 @@ namespace SuperTank
         private float cannonAngle;
         private List<BoundingSphere> spheres;
 
+        public int LivesRemaining = 5;
+
         //Accessors and mutators.
         public Texture2D Texture
         {
