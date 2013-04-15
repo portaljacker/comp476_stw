@@ -19,7 +19,7 @@ namespace SuperTank
     {
         //private Vector2 position;
         //private Vector2 velocity; = new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
-        private float theta;        // point in circle for wander behavior
+        //private float theta;        // point in circle for wander behavior
         private const float MAXSPEED = 0.01f;
         //private float orientation; //Used to allign character with target.
 
@@ -31,7 +31,7 @@ namespace SuperTank
 
         }
 
-        public void Wander()
+        public void Wander(Map m, Tank t, List<EnemyTanks>others)
         {
             Random rand = new Random();
 
@@ -66,12 +66,72 @@ namespace SuperTank
             }
 
             // update position
-            Position += new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f); ;
+            Vector2 newPos = new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
+            updatePosition(m, newPos, t, others);
 
             CannonAngle = ChassisAngle;
 
             updateSpheres();
         }
+
+        public void updatePosition(Map m, Vector2 pos, Tank t, List<EnemyTanks> others)
+        {
+            Position += pos;
+
+            foreach (BoundingSphere b in m.Walls)
+            {
+                for (int i = 0; i < this.Spheres.Count; i++)
+                {
+                    int x = (int)Math.Floor(this.Spheres[i].Center.X / 20);
+                    int y = (int)Math.Floor(this.Spheres[i].Center.Y / 20);
+
+                    if (this.Spheres[i].Intersects(b))
+                    {
+                        this.Position -= pos;
+                        this.updateSpheres();
+                        break;
+                    }
+                }
+            }
+
+            if ((this.Position - t.Position).Length() <= 60)
+            {
+                for (int i = 0; i < this.Spheres.Count; i++)
+                {
+                    for (int j = 0; j < t.Spheres.Count; j++)
+                    {
+                        if (this.Spheres[i].Intersects(t.Spheres[j]))
+                        {
+                            this.Position -= pos;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            foreach (EnemyTanks et in others)
+            {
+                if (this.TankColor != et.TankColor)
+                {
+                    if ((this.Position - et.Position).Length() <= 60)
+                    {
+                        for (int i = 0; i < this.Spheres.Count; i++)
+                        {
+                            for (int j = 0; j < et.Spheres.Count; j++)
+                            {
+                                if (this.Spheres[i].Intersects(et.Spheres[j]))
+                                {
+                                    this.Position -= pos;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
 
     }
 }

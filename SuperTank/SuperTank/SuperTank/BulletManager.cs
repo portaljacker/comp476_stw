@@ -30,12 +30,12 @@ namespace SuperTank
             bullets = new List<Bullet>();
         }
 
-        public void createBullet(Vector2 pos, Vector2 target)
+        public void createBullet(int bColor, Vector2 pos, Vector2 target)
         {
-            bullets.Add(new Bullet(tex, pos, target));
+            bullets.Add(new Bullet(tex, bColor, pos, target));
         }
 
-        public void update(Map m)
+        public void update(Map m, Tank t1, List<EnemyTanks> others)
         {
             for (int i = 0; i < bullets.Count; i++)
             {
@@ -60,7 +60,43 @@ namespace SuperTank
                     {
                         bullets.RemoveAt(i);
                         i--;
+                        break;
+
                     }
+
+                    if ((bullets[i].Position - t1.Position).Length() <= 31 && bullets[i].BulletColor != t1.TankColor)
+                    {
+                        foreach (BoundingSphere s in t1.Spheres)
+                        {
+                            Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
+                            if ((bullets[i].Position - spherePos).Length() <= 10)
+                            {
+                                bullets.RemoveAt(i);
+                                i--;
+                                break;
+
+                            }
+                        }
+                    }
+
+                    
+                    foreach (EnemyTanks e in others)
+                    {
+                        if ((bullets[i].Position - e.Position).Length() <= 31 && bullets[i].BulletColor != e.TankColor)
+                        {
+                            foreach (BoundingSphere s in e.Spheres)
+                            {
+                                Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
+                                if ((bullets[i].Position - spherePos).Length() <= 10)
+                                {
+                                    bullets.RemoveAt(i);
+                                    i--;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
                 }
             }
 

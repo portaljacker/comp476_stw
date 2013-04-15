@@ -88,8 +88,10 @@ namespace SuperTank
 
         Map m1;
         Tank t1;
-        EnemyTanks et1;
+        //EnemyTanks et1;
+        List<EnemyTanks> ets = new List<EnemyTanks>();
 
+        float playerTimer = 0f;
         float timer = 0f;
         float interval = 100f;
         float fireCount = 100f;
@@ -158,7 +160,9 @@ namespace SuperTank
 
             m1 = new Map(tiles);
             t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), 0);
-            et1 = new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 5), (graphics.PreferredBackBufferHeight - graphics.PreferredBackBufferHeight / 5)), 1);
+            ets.Add(new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 5), (graphics.PreferredBackBufferHeight - graphics.PreferredBackBufferHeight / 5)), 1));
+
+
 
             bm = new BulletManager(bullet);
 
@@ -258,7 +262,24 @@ namespace SuperTank
                     btnBack.Update(ms);
                     break;
                 case GameState.Play:
-                    et1.Wander();
+                    timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    foreach (EnemyTanks et in ets)
+                    {
+                        if (timer > interval)
+                        {
+                            et.CurrentFrame++;
+                            et.updateRectangles();
+                            timer = 0f;
+                        }
+                        if (et.CurrentFrame == 2)
+                        {
+                            et.CurrentFrame = 0;
+                            et.updateRectangles();
+                        }
+
+                        et.Wander(m1, t1, ets);
+                    }
+
                     KeyboardState mKeys = Keyboard.GetState();
                     if (mKeys.IsKeyDown(Keys.Up) == true)
                     {
@@ -273,7 +294,7 @@ namespace SuperTank
                         {
                             if (canFire)
                             {
-                                bm.createBullet(t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                                bm.createBullet(t1.TankColor, t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
                                 canFire = false;
                             }
                         }
@@ -283,14 +304,14 @@ namespace SuperTank
                             switch (key)
                             {
                                 case Keys.W:
-                                    timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                                    if (timer > interval)
+                                    playerTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                                    if (playerTimer > interval)
                                     {
                                         //Show the next frame
                                         t1.CurrentFrame++;
                                         t1.updateRectangles();
                                         //Reset the timer
-                                        timer = 0f;
+                                        playerTimer = 0f;
                                     }
 
                                     if (t1.CurrentFrame == 2)
@@ -316,17 +337,36 @@ namespace SuperTank
                                             }
                                         }
                                     }
+
+                                    foreach (EnemyTanks et in ets)
+                                    {
+                                        if ((t1.Position - et.Position).Length() <= 60)
+                                        {
+                                            for (int i = 0; i < t1.Spheres.Count; i++)
+                                            {
+                                                for (int j = 0; j < et.Spheres.Count; j++)
+                                                {
+                                                    if (t1.Spheres[i].Intersects(et.Spheres[j]))
+                                                    {
+                                                        t1.Position -= new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                                        t1.updateSpheres();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     break;
 
                                 case Keys.S:
-                                    timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                                    if (timer > interval)
+                                    playerTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                                    if (playerTimer > interval)
                                     {
                                         //Show the next frame
                                         t1.CurrentFrame++;
                                         t1.updateRectangles();
                                         //Reset the timer
-                                        timer = 0f;
+                                        playerTimer = 0f;
                                     }
 
                                     if (t1.CurrentFrame == 2)
@@ -351,6 +391,25 @@ namespace SuperTank
                                             }
                                         }
                                     }
+                                    foreach (EnemyTanks et in ets)
+                                    {
+                                        if ((t1.Position - et.Position).Length() <= 60)
+                                        {
+                                            for (int i = 0; i < t1.Spheres.Count; i++)
+                                            {
+                                                for (int j = 0; j < et.Spheres.Count; j++)
+                                                {
+                                                    if (t1.Spheres[i].Intersects(et.Spheres[j]))
+                                                    {
+                                                        t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
+                                                        t1.updateSpheres();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     break;
 
                                 case Keys.A:
@@ -396,7 +455,7 @@ namespace SuperTank
                                     {
                                         if (canFire)
                                         {
-                                            bm.createBullet(t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                                            bm.createBullet(t1.TankColor, t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
                                             canFire = false;
                                         }
                                     }
@@ -425,7 +484,7 @@ namespace SuperTank
                             fireCount = 100;
                         }
 
-                        bm.update(m1);
+                        bm.update(m1, t1, ets);
                         break;
                     }
             base.Update(gameTime);
@@ -470,7 +529,10 @@ namespace SuperTank
                 case GameState.Play:
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
-                    et1.Draw(spriteBatch);
+                    foreach (EnemyTanks et in ets)
+                    {
+                        et.Draw(spriteBatch);
+                    }
 
                     foreach (Bullet b in bm.Bullets)
                     {

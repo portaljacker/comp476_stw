@@ -20,6 +20,7 @@ namespace SuperTank
         private Vector2 origin;
         private Vector2 target;
         private int lifeTime;
+        private int bulletColor;
 
         public Texture2D Texture
         {
@@ -95,7 +96,15 @@ namespace SuperTank
             }
         }
 
-        public Bullet(Texture2D tex, Vector2 pos, Vector2 tar)
+        public int BulletColor
+        {
+            get
+            {
+                return bulletColor;
+            }
+        }
+
+        public Bullet(Texture2D tex, int c, Vector2 pos, Vector2 tar)
         {
             texture = tex;
             width = 9;
@@ -104,16 +113,35 @@ namespace SuperTank
             position = pos;
             target = tar;
             lifeTime = 530;
+            bulletColor = c;
         }
 
-        public void Move()
+        /*public void Move()
         {
 
-        }
+        }*/
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Position, new Rectangle(0, 0, 9, 9), Color.White, 0f, Origin, 1.0f, SpriteEffects.None, 0);
+            Color c = Color.Black;
+
+            switch (bulletColor)
+            {
+                case 0:
+                    c = Color.Blue;
+                    break;
+                case 1:
+                    c = Color.Red;
+                    break;
+                case 2:
+                    c = Color.Green;
+                    break;
+                case 3:
+                    c = Color.Yellow;
+                    break;
+            }
+
+            spriteBatch.Draw(Texture, Position, new Rectangle(0, 0, 9, 9), c, 0f, Origin, 1.0f, SpriteEffects.None, 0);
         }
     }
 }

@@ -27,7 +27,6 @@ namespace SuperTank
         private float chassisAngle;
         private float cannonAngle;
         private List<BoundingSphere> spheres;
-
         public int LivesRemaining = 5;
 
         //Accessors and mutators.
@@ -126,15 +125,6 @@ namespace SuperTank
                 cannonAngle = value;
             }
         }
-
-        /*public Rectangle TankBox
-        {
-            get
-            {
-                return tankBox;
-            }
-        }*/
-
         public List<BoundingSphere> Spheres
         {
             get
