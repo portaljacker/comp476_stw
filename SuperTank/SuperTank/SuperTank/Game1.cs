@@ -88,6 +88,8 @@ namespace SuperTank
 
         Map m1;
         Tank t1;
+        EnemyTanks et1;
+
         float timer = 0f;
         float interval = 100f;
         float fireCount = 100f;
@@ -156,6 +158,7 @@ namespace SuperTank
 
             m1 = new Map(tiles);
             t1 = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), 0);
+            et1 = new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 5), (graphics.PreferredBackBufferHeight - graphics.PreferredBackBufferHeight / 5)), 1);
 
             bm = new BulletManager(bullet);
 
@@ -255,6 +258,7 @@ namespace SuperTank
                     btnBack.Update(ms);
                     break;
                 case GameState.Play:
+                    et1.Wander();
                     KeyboardState mKeys = Keyboard.GetState();
                     if (mKeys.IsKeyDown(Keys.Up) == true)
                     {
@@ -466,6 +470,7 @@ namespace SuperTank
                 case GameState.Play:
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
+                    et1.Draw(spriteBatch);
 
                     foreach (Bullet b in bm.Bullets)
                     {

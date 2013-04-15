@@ -75,6 +75,7 @@
     <Compile Include="Bullet.cs" />
     <Compile Include="BulletManager.cs" />
     <Compile Include="Button.cs" />
+    <Compile Include="EnemyTanks.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
