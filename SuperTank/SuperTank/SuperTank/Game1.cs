@@ -38,12 +38,18 @@ namespace SuperTank
         // lose screen background
         private Texture2D GameOver;
 
+        // tutorial textures
+        private Texture2D wizard;
+        private Texture2D speechBubble;
+        private Texture2D keyboardKeys;
+
         // title
         private Texture2D title;
 
         private Texture2D life;
 
-        SpriteFont pericles14;
+        SpriteFont pericles20;
+        SpriteFont pericles16;
 
         private Vector2 livesLocation;
 
@@ -72,14 +78,10 @@ namespace SuperTank
             Tutorial4,
             Tutorial5,
             Tutorial6,
-            Tutorial7,
-            Tutorial8,
-            Tutorial9,
-            Tutorial10,
-            Tutorial11,
         }
 
         GameState currentGameState = GameState.MainMenu;
+        TutorialState currentTutorialState = TutorialState.Tutorial1;
 
         Texture2D tankTex;
         Texture2D reticle;
@@ -146,7 +148,12 @@ namespace SuperTank
             bullet = Content.Load<Texture2D>("bullet");
             tiles = Content.Load<Texture2D>("tiles");
 
-            pericles14 = Content.Load<SpriteFont>("Pericles14");
+            wizard = Content.Load<Texture2D>("wizard");
+            speechBubble = Content.Load<Texture2D>("bubble");
+            keyboardKeys = Content.Load<Texture2D>("keyboardcontrols");
+
+            pericles20 = Content.Load<SpriteFont>("Pericles20");
+            pericles16 = Content.Load<SpriteFont>("Pericles16");
 
             GameOver = Content.Load<Texture2D>("gameOver");
 
@@ -238,9 +245,35 @@ namespace SuperTank
 
             switch (currentGameState)
             {
+                case GameState.Tutorial:
+                    if (ks.IsKeyDown(Keys.Space) && lastKs.IsKeyUp(Keys.Space))
+                    {
+                        switch (currentTutorialState)
+                        {
+                            case TutorialState.Tutorial1:
+                                currentTutorialState = TutorialState.Tutorial2;
+                                break;
+                            case TutorialState.Tutorial2:
+                                currentTutorialState = TutorialState.Tutorial3;
+                                break;
+                            case TutorialState.Tutorial3:
+                                currentTutorialState = TutorialState.Tutorial4;
+                                break;
+                            case TutorialState.Tutorial4:
+                                currentTutorialState = TutorialState.Tutorial5;
+                                break;
+                            case TutorialState.Tutorial5:
+                                currentTutorialState = TutorialState.Tutorial6;
+                                break;
+                            case TutorialState.Tutorial6:
+                                currentGameState = GameState.Play;
+                                break;
+                        }
+                    }
+                    break;
                 case GameState.MainMenu:
                     if (btnArray[0].isClicked == true)
-                        currentGameState = GameState.Play;
+                        currentGameState = GameState.Tutorial;
                     else if (btnArray[1].isClicked == true)
                     {
                         currentGameState = GameState.Controls;
@@ -516,7 +549,7 @@ namespace SuperTank
                 case GameState.Lose:
                     spriteBatch.Draw(GameOver, new Rectangle((graphics.PreferredBackBufferWidth / 2) - GameOver.Width / 2, (graphics.PreferredBackBufferHeight / 2) - GameOver.Height / 2, GameOver.Width, GameOver.Height), Color.White);
                     spriteBatch.DrawString(
-                        pericles14,
+                        pericles20,
                         " You got stomped by wizards... in tanks ",
                         new Vector2((graphics.PreferredBackBufferWidth / 2) - graphics.PreferredBackBufferWidth / 4, (graphics.PreferredBackBufferHeight / 2) + graphics.PreferredBackBufferHeight / 4),
                         Color.DarkRed);
@@ -525,6 +558,63 @@ namespace SuperTank
                     spriteBatch.Draw(controlsBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
                     ctrlsTutorial.Draw(spriteBatch);
                     btnBack.Draw(spriteBatch);
+                    break;
+                case GameState.Tutorial:
+                    m1.Draw(spriteBatch);
+                    //t1.Draw(spriteBatch);
+                    //et1.Draw(spriteBatch);
+
+                    spriteBatch.Draw(wizard, new Rectangle(graphics.PreferredBackBufferWidth / 8, graphics.PreferredBackBufferHeight / 4, (2 * wizard.Width / 3), (2 * wizard.Height / 3)), Color.White);
+                    spriteBatch.Draw(speechBubble, new Rectangle(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight / 5, (3 * speechBubble.Width / 4), (3 * speechBubble.Height / 4)), Color.White);
+
+                    if (currentTutorialState == TutorialState.Tutorial1)
+                    {
+                        spriteBatch.DrawString(pericles16, "Welcome to our arena, \nbattle wizard! In order to \nsucceed and join our ranks, \nyou will have to defeat other \npotential suitors.",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to continue.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
+
+                    if (currentTutorialState == TutorialState.Tutorial2)
+                    {
+                        spriteBatch.DrawString(pericles16, "In order to defeat them, \nyou will need to use your \nskills, for only the most \nruthless tank wizard will \nemerge victorious.",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to continue.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
+
+                    if (currentTutorialState == TutorialState.Tutorial3)
+                    {
+                        spriteBatch.DrawString(pericles16, "Use the mouse to rotate the \ntank turret by moving it in \nthe direction you desire.",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to continue.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
+
+                    if (currentTutorialState == TutorialState.Tutorial4)
+                    {
+                        spriteBatch.DrawString(pericles16, "Click on the left mouse \nbutton to fire the cannon \nand blow your enemies to \nsmithereens!",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to continue.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
+
+                    if (currentTutorialState == TutorialState.Tutorial5)
+                    {
+                        spriteBatch.DrawString(pericles16, "Finally, move around the \narena with ",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.Draw(keyboardKeys, new Rectangle((graphics.PreferredBackBufferWidth / 2), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 20, keyboardKeys.Width / 4, keyboardKeys.Height / 4), Color.White);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to continue.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
+
+                    if (currentTutorialState == TutorialState.Tutorial6)
+                    {
+                        spriteBatch.DrawString(pericles16, "Good luck! And we implore \nyou; try to survive! Too many \nof our students have \nperished already!",
+                           new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 20), (graphics.PreferredBackBufferHeight / 3) + graphics.PreferredBackBufferHeight / 30), Color.Black);
+                        spriteBatch.DrawString(pericles20, "Press SPACE to start.",
+                            new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
+                    }
                     break;
                 case GameState.Play:
                     m1.Draw(spriteBatch);
@@ -544,7 +634,7 @@ namespace SuperTank
 
                     spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
                     spriteBatch.DrawString(
-                        pericles14,
+                        pericles20,
                         " X " + t1.LivesRemaining.ToString(),
                         livesLocation,
                         Color.White);
