@@ -200,7 +200,7 @@ namespace SuperTank
             spriteBatch.Draw(Texture, Position, cannon, Color.White, cannonAngle, Origin, 1.0f, SpriteEffects.None, 0);
 
             //Draws bounding sphere locations on tank.
-            for (int i = 0; i < spheres.Count; i++)
+            /*for (int i = 0; i < spheres.Count; i++)
             {
                 Color c = Color.Black;
 
@@ -229,7 +229,7 @@ namespace SuperTank
 
                 spriteBatch.Draw(texture2, new Vector2(spheres[i].Center.X, spheres[i].Center.Y), new Rectangle(0, 0, 9, 9), c, 0f, new Vector2(9/2, 9/2), 1.0f, SpriteEffects.None, 0);
 
-            }
+            }*/
         }
     }
 }
