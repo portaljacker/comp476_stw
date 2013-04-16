@@ -28,6 +28,9 @@ namespace SuperTank
         private float cannonAngle;
         private List<BoundingSphere> spheres;
         public int LivesRemaining = 5;
+        private BoundingSphere avoidanceSphere;
+        private BoundingSphere shootSphere;
+        public static bool DrawBSPheres { get; set; }
 
         //Accessors and mutators.
         public Texture2D Texture
@@ -86,6 +89,10 @@ namespace SuperTank
             {
                 return tankColor;
             }
+            set
+            {
+                tankColor = value;
+            }
         }
 
         public int CurrentFrame
@@ -133,6 +140,22 @@ namespace SuperTank
             }
         }
 
+        public BoundingSphere AvoidanceSphere
+        {
+            get
+            {
+                return avoidanceSphere;
+            }
+        }
+
+        public BoundingSphere ShootSphere
+        {
+            get
+            {
+                return shootSphere;
+            }
+        }
+
         public Tank(Texture2D tex, Vector2 pos, int color)
         {
             texture = tex;
@@ -154,6 +177,8 @@ namespace SuperTank
             spheres.Add(new BoundingSphere(new Vector3(position.X, position.Y + 10, 0), 10));
             spheres.Add(new BoundingSphere(new Vector3(position.X + 20, position.Y - 10, 0), 10));
             spheres.Add(new BoundingSphere(new Vector3(position.X + 20, position.Y + 10, 0), 10));
+            avoidanceSphere = new BoundingSphere(new Vector3(position.X + 30, position.Y, 0), 30);
+            shootSphere = new BoundingSphere(new Vector3(position.X, position.Y, 0), 320);
         }
 
         public void updateRectangles()
@@ -181,6 +206,11 @@ namespace SuperTank
             
             spheres[5] = new BoundingSphere(new Vector3((float)(Math.Cos(chassisAngle) * ((position.X + 20) - position.X) - Math.Sin(chassisAngle) * ((position.Y + 10) - position.Y) + position.X),
                 (float)(Math.Sin(chassisAngle) * ((position.X + 20) - position.X) + Math.Cos(chassisAngle) * ((position.Y + 10) - position.Y) + position.Y), 0), 10);
+
+            avoidanceSphere = new BoundingSphere(new Vector3((float)(Math.Cos(chassisAngle) * ((position.X + 30) - position.X) - Math.Sin(chassisAngle) * ((position.Y) - position.Y) + position.X),
+                (float)(Math.Sin(chassisAngle) * ((position.X + 30) - position.X) + Math.Cos(chassisAngle) * ((position.Y) - position.Y) + position.Y), 0), 30);
+
+            shootSphere = new BoundingSphere(new Vector3(position.X, position.Y, 0), 320);
         }
 
         //Draw method, using above data.
@@ -190,36 +220,40 @@ namespace SuperTank
             spriteBatch.Draw(Texture, Position, cannon, Color.White, cannonAngle, Origin, 1.0f, SpriteEffects.None, 0);
 
             //Draws bounding sphere locations on tank.
-            /*for (int i = 0; i < spheres.Count; i++)
+            if (DrawBSPheres)
             {
-                Color c = Color.Black;
-
-                switch (i)
+                for (int i = 0; i < spheres.Count; i++)
                 {
-                    case 0:
-                        c = Color.White;
-                        break;
-                    case 1:
-                        c = Color.Red;
-                        break;
-                    case 2:
-                        c = Color.Green;
-                        break;
-                    case 3:
-                        c = Color.Blue;
-                        break;
-                    case 4:
-                        c = Color.Yellow;
-                        break;
-                    case 5:
-                        c = Color.Purple;
-                        break;
+                    Color c = Color.Black;
+
+                    switch (i)
+                    {
+                        case 0:
+                            c = Color.White;
+                            break;
+                        case 1:
+                            c = Color.Red;
+                            break;
+                        case 2:
+                            c = Color.Green;
+                            break;
+                        case 3:
+                            c = Color.Blue;
+                            break;
+                        case 4:
+                            c = Color.Yellow;
+                            break;
+                        case 5:
+                            c = Color.Purple;
+                            break;
+                    }
+
+
+                    spriteBatch.Draw(texture2, new Vector2(spheres[i].Center.X, spheres[i].Center.Y), new Rectangle(0, 0, 9, 9), c, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+
                 }
-
-
-                spriteBatch.Draw(texture2, new Vector2(spheres[i].Center.X, spheres[i].Center.Y), new Rectangle(0, 0, 9, 9), c, 0f, new Vector2(9/2, 9/2), 1.0f, SpriteEffects.None, 0);
-
-            }*/
+                spriteBatch.Draw(texture2, new Vector2(avoidanceSphere.Center.X, avoidanceSphere.Center.Y), new Rectangle(0, 0, 9, 9), Color.Cyan, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+            }
         }
     }
 }

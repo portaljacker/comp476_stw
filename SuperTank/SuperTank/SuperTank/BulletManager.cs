@@ -56,7 +56,7 @@ namespace SuperTank
                     int x = (int)Math.Floor(bullets[i].Position.X / 20);
                     int y = (int)Math.Floor(bullets[i].Position.Y / 20);
 
-                    if (x < 0 || x > 63 || y < 0 || y > 35 || m.getTileType(x, y) == '1' || bullets[i].LifeTime < 1)
+                    if (x < 0 || x > 63 || y < 0 || y > 35 || m.getTileType(x, y) == 1 || bullets[i].LifeTime < 1)
                     {
                         bullets.RemoveAt(i);
                         i--;
@@ -64,27 +64,11 @@ namespace SuperTank
 
                     }
 
-                    if ((bullets[i].Position - t1.Position).Length() <= 31 && bullets[i].BulletColor != t1.TankColor)
+                    if (i >= 0)
                     {
-                        foreach (BoundingSphere s in t1.Spheres)
+                        if ((bullets[i].Position - t1.Position).Length() <= 31 && bullets[i].BulletColor != t1.TankColor)
                         {
-                            Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
-                            if ((bullets[i].Position - spherePos).Length() <= 10)
-                            {
-                                bullets.RemoveAt(i);
-                                i--;
-                                break;
-
-                            }
-                        }
-                    }
-
-                    
-                    foreach (EnemyTanks e in others)
-                    {
-                        if ((bullets[i].Position - e.Position).Length() <= 31 && bullets[i].BulletColor != e.TankColor)
-                        {
-                            foreach (BoundingSphere s in e.Spheres)
+                            foreach (BoundingSphere s in t1.Spheres)
                             {
                                 Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
                                 if ((bullets[i].Position - spherePos).Length() <= 10)
@@ -92,7 +76,36 @@ namespace SuperTank
                                     bullets.RemoveAt(i);
                                     i--;
                                     break;
+
                                 }
+                            }
+                        }
+                    }
+
+                    if (i >= 0)
+                    {
+                        foreach (EnemyTanks e in others)
+                        {
+                            if (i >= 0)
+                            {
+                                if ((bullets[i].Position - e.Position).Length() <= 31 && bullets[i].BulletColor != e.TankColor)
+                                {
+                                    foreach (BoundingSphere s in e.Spheres)
+                                    {
+                                        Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
+                                        if ((bullets[i].Position - spherePos).Length() <= 10)
+                                        {
+                                            bullets.RemoveAt(i);
+                                            i--;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                break;
                             }
                         }
                     }

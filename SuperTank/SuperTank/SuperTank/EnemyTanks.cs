@@ -21,14 +21,78 @@ namespace SuperTank
         //private Vector2 velocity; = new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
         //private float theta;        // point in circle for wander behavior
         private const float MAXSPEED = 0.01f;
+        private int count;
+        private bool foundTarget;
+        private Tank target;
         //private float orientation; //Used to allign character with target.
 
         new public int LivesRemaining = 3;
 
+        public bool FoundTarget
+        {
+            get
+            {
+                return foundTarget;
+            }
+            set
+            {
+                foundTarget = value;
+            }
+        }
+
+        public Tank Target
+        {
+            get
+            {
+                return target;
+            }
+            set
+            {
+                target = value;
+            }
+        }
+
         public EnemyTanks(Texture2D tex, Vector2 pos, int color)
             : base(tex, pos, color)
         {
+            count = 10;
+        }
 
+        
+
+        public bool attack(Tank t, List<EnemyTanks>others)
+        {
+            for (int j = 0; j < t.Spheres.Count; j++)
+            {
+                if (this.ShootSphere.Intersects(t.Spheres[j]) && foundTarget == false)
+                {
+                    this.foundTarget = true;
+                    this.target = t;
+                    return foundTarget;
+                }
+                
+            }
+
+            foreach (EnemyTanks et in others)
+            {
+                if (this.TankColor != et.TankColor)
+                {
+
+                   for (int j = 0; j < et.Spheres.Count; j++)
+                   {
+                       if (this.ShootSphere.Intersects(et.Spheres[j]) && foundTarget == false)
+                       {
+                           this.foundTarget = true;
+                           this.target = et;
+                           return foundTarget;
+                       }
+                   }
+ 
+                }
+            }
+
+            return false;
+            
         }
 
         public void Wander(Map m, Tank t, List<EnemyTanks>others)
@@ -36,18 +100,37 @@ namespace SuperTank
             Random rand = new Random();
 
             // parameters for the target circle the wandering bot will be seeking
-            float radius = 15f;
-            float distance = 10f;
-            float rotStep = 0.2f;
+            float radius = 1.1f;
+            float distance = 1.5f;
+            float rotStep = 1.0f;
 
             // place a circle in front of the wandering bot
-            Vector2 targetCircle = new Vector2((float)Math.Cos((ChassisAngle)) * 1.5f, (float)Math.Sin((ChassisAngle)) * 1.5f); ;
+            Vector2 targetCircle = new Vector2((float)Math.Cos((ChassisAngle))*1.5f, (float)Math.Sin((ChassisAngle))*1.5f);
             targetCircle.Normalize();
             targetCircle *= distance;
             targetCircle += Position;
 
             // calculate the angle where the point on the circle will be
-            ChassisAngle += (float)rand.NextDouble() * (rotStep - (-rotStep)) - rotStep;
+            if (count == 10)
+            {
+                float tempAngle = (float)rand.NextDouble() * (rotStep - (-rotStep)) - rotStep;
+                ChassisAngle += tempAngle;
+                updateSpheres();
+
+                foreach (BoundingSphere b in m.Walls)
+                {
+                    for (int i = 0; i < this.Spheres.Count; i++)
+                    {
+
+                        if (this.Spheres[i].Intersects(b) || this.AvoidanceSphere.Intersects(b))
+                        {
+                            ChassisAngle -= tempAngle;
+                            updateSpheres();
+                            break;
+                        }
+                    }
+                }
+            }
 
             // calculate the point on the circle and store it
             Vector2 targetOffset = new Vector2(radius * (float)Math.Cos(ChassisAngle), radius * (float)Math.Sin(ChassisAngle));
@@ -72,6 +155,11 @@ namespace SuperTank
             CannonAngle = ChassisAngle;
 
             updateSpheres();
+            count--;
+            if (count == 0)
+            {
+                count = 10;
+            }
         }
 
         public void updatePosition(Map m, Vector2 pos, Tank t, List<EnemyTanks> others)
@@ -82,9 +170,6 @@ namespace SuperTank
             {
                 for (int i = 0; i < this.Spheres.Count; i++)
                 {
-                    int x = (int)Math.Floor(this.Spheres[i].Center.X / 20);
-                    int y = (int)Math.Floor(this.Spheres[i].Center.Y / 20);
-
                     if (this.Spheres[i].Intersects(b))
                     {
                         this.Position -= pos;
@@ -94,7 +179,7 @@ namespace SuperTank
                 }
             }
 
-            if ((this.Position - t.Position).Length() <= 60)
+            if ((this.Position - t.Position).Length() <= 65)
             {
                 for (int i = 0; i < this.Spheres.Count; i++)
                 {
@@ -103,6 +188,7 @@ namespace SuperTank
                         if (this.Spheres[i].Intersects(t.Spheres[j]))
                         {
                             this.Position -= pos;
+                            this.updateSpheres();
                             break;
                         }
                     }
@@ -113,7 +199,7 @@ namespace SuperTank
             {
                 if (this.TankColor != et.TankColor)
                 {
-                    if ((this.Position - et.Position).Length() <= 60)
+                    if ((this.Position - et.Position).Length() <= 65)
                     {
                         for (int i = 0; i < this.Spheres.Count; i++)
                         {
@@ -122,6 +208,7 @@ namespace SuperTank
                                 if (this.Spheres[i].Intersects(et.Spheres[j]))
                                 {
                                     this.Position -= pos;
+                                    this.updateSpheres();
                                     break;
                                 }
                             }
