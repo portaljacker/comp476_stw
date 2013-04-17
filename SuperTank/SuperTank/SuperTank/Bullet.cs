@@ -112,7 +112,7 @@ namespace SuperTank
             origin = new Vector2(width / 2, height / 2);
             position = pos;
             target = tar;
-            lifeTime = 530;
+            lifeTime = 100;//530;
             bulletColor = c;
         }
 

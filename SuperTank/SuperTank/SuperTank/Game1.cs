@@ -57,6 +57,8 @@ namespace SuperTank
         private Texture2D hat2;
         private Texture2D hat3;
 
+        
+
         // enum for the different states of the game
         enum GameState
         {
@@ -108,6 +110,9 @@ namespace SuperTank
         bool canFire2 = true;
         float step = 1f;
         BulletManager bm;
+
+        List<ParticleSystem> explosions;
+        List<Texture2D> images;
 
         KeyboardState ks;
         KeyboardState lastKs;
@@ -163,6 +168,8 @@ namespace SuperTank
             pericles20 = Content.Load<SpriteFont>("Pericles20");
             pericles16 = Content.Load<SpriteFont>("Pericles16");
 
+
+
             GameOver = Content.Load<Texture2D>("gameOver");
 
             int offset = 50;
@@ -174,12 +181,12 @@ namespace SuperTank
             Tank.texture2 = bullet;
 
             m1 = new Map(tiles);
-            t1 = new Tank(tankTex, new Vector2(80, 60), 0);
+            t1 = new Tank(tankTex, new Vector2(80, 60), 3);
             ets.Add(new EnemyTanks(tankTex, new Vector2(80, 600), 1));
             ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 600), 2));
             ets[1].ChassisAngle = -90;
             ets[1].CannonAngle = -90;
-            ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 60), 3));
+            ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 60), 0));
             ets[2].ChassisAngle = -180;
             ets[2].CannonAngle = -180;
 
@@ -225,6 +232,16 @@ namespace SuperTank
             hat1 = Content.Load<Texture2D>("hat1");
             hat2 = Content.Load<Texture2D>("hat2");
             hat3 = Content.Load<Texture2D>("hat3");
+
+            images = new List<Texture2D>();
+            images.Add(Content.Load<Texture2D>("circle"));
+            images.Add(Content.Load<Texture2D>("star"));
+            images.Add(Content.Load<Texture2D>("diamond"));
+
+            explosions = new List<ParticleSystem>();
+            explosions.Add(new ParticleSystem(images, Vector2.Zero, 1, 0));
+            explosions.Add(new ParticleSystem(images, Vector2.Zero, 3, 0));
+            explosions.Add(new ParticleSystem(images, Vector2.Zero, 2, 0));
             // TODO: use this.Content to load your game content here
         }
 
@@ -309,7 +326,11 @@ namespace SuperTank
 
 
                 case GameState.Play:
-
+                    for (int i = 0; i < 3; i++)
+                    {
+                        explosions[i].Update();
+                        explosions[i].EmitterLocation = ets[i].Position;
+                    }
 
                     if (t1.livesRemaining <= 0)
                     {
@@ -739,22 +760,23 @@ namespace SuperTank
                 case GameState.Play:
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
-                    foreach (EnemyTanks et in ets)
+                    for (int i = 0; i <3; i++)
                     {
-                        if (et.LivesRemaining > 0)
+                        if (ets[i].LivesRemaining > 0)
                         {
-                            et.Draw(spriteBatch);
+                            ets[i].Draw(spriteBatch);
                         }
 
                         else
                         {
-                            et.DrawDead(spriteBatch);
+                            ets[i].DrawDead(spriteBatch);
+                            explosions[i].Draw(spriteBatch);
                         }
                     }
 
                     foreach (Bullet b in bm.Bullets)
                     {
-                        if (b.LifeTime < 521)
+                        if (b.LifeTime <91/*< 521*/)
                         {
                             b.Draw(spriteBatch);
                         }
@@ -769,8 +791,8 @@ namespace SuperTank
                     spriteBatch.Draw(life, new Rectangle(graphics.PreferredBackBufferWidth / 30, (12 * graphics.PreferredBackBufferHeight / 13), life.Width, life.Height), Color.White);
                     break;
             }
-
-            spriteBatch.End();
+            
+            spriteBatch.End();                   
 
             base.Draw(gameTime);
         }

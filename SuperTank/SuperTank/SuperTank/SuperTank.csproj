@@ -78,6 +78,8 @@
     <Compile Include="EnemyTanks.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="Particle.cs" />
+    <Compile Include="ParticleSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
