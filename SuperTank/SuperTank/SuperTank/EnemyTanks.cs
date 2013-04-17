@@ -24,6 +24,7 @@ namespace SuperTank
         private int count;
         private bool foundTarget;
         private Tank target;
+        private bool addedToWalls = false;
         //private float orientation; //Used to allign character with target.
 
         new public int LivesRemaining = 3;
@@ -63,9 +64,14 @@ namespace SuperTank
 
         public bool scan(Tank t, List<EnemyTanks>others)
         {
+            if (this.LivesRemaining <= 0)
+            {
+                return false;
+            }
+
             for (int j = 0; j < t.Spheres.Count; j++)
             {
-                if (this.ShootSphere.Intersects(t.Spheres[j]) && foundTarget == false)
+                if (this.ShootSphere.Intersects(t.Spheres[j]) && foundTarget == false && t.LivesRemaining > 0)
                 {
                     this.foundTarget = true;
                     this.target = t;
@@ -81,7 +87,7 @@ namespace SuperTank
 
                    for (int j = 0; j < et.Spheres.Count; j++)
                    {
-                       if (this.ShootSphere.Intersects(et.Spheres[j]) && foundTarget == false)
+                       if (this.ShootSphere.Intersects(et.Spheres[j]) && foundTarget == false && et.LivesRemaining > 0)
                        {
                            this.foundTarget = true;
                            this.target = et;
@@ -98,6 +104,22 @@ namespace SuperTank
 
         public void Wander(Map m, Tank t, List<EnemyTanks>others)
         {
+            if(this.LivesRemaining <= 0)
+            {
+                if (!addedToWalls)
+                {
+                    foreach (BoundingSphere sp in this.Spheres)
+                    {
+                        m.Walls.Add(sp);
+                    }
+
+                    addedToWalls = true;
+                }
+
+               return;
+
+            }
+
             Random rand = new Random();
 
             // parameters for the target circle the wandering bot will be seeking

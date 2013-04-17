@@ -27,7 +27,7 @@ namespace SuperTank
         private float chassisAngle;
         private float cannonAngle;
         private List<BoundingSphere> spheres;
-        public int LivesRemaining = 5;
+        public int livesRemaining = 5;
         private BoundingSphere avoidanceSphere;
         private BoundingSphere shootSphere;
         public static bool DrawBSPheres { get; set; }
@@ -140,6 +140,19 @@ namespace SuperTank
             }
         }
 
+        public int LivesRemaining
+        {
+            get
+            {
+                return livesRemaining;
+            }
+
+            set
+            {
+                livesRemaining = value;
+            }
+        }
+
         public BoundingSphere AvoidanceSphere
         {
             get
@@ -183,12 +196,22 @@ namespace SuperTank
 
         public void updateRectangles()
         {
+            if (this.LivesRemaining <= 0)
+            {
+                return;
+            }
+
             chassis = new Rectangle(width * currentFrame, height * tankColor, width, height);
             cannon = new Rectangle(width * 2, height * tankColor, width, height);
         }
 
         public void updateSpheres()
         {
+            if (this.LivesRemaining <= 0)
+            {
+                return;
+            }
+
             spheres[0] = new BoundingSphere(new Vector3((float)(Math.Cos(chassisAngle) * ((position.X - 20) - position.X) - Math.Sin(chassisAngle) * ((position.Y - 10) - position.Y) + position.X), 
                 (float)(Math.Sin(chassisAngle) * ((position.X - 20) - position.X) + Math.Cos(chassisAngle) * ((position.Y - 10) - position.Y) + position.Y), 0), 10);
            
@@ -254,6 +277,11 @@ namespace SuperTank
                 }
                 spriteBatch.Draw(texture2, new Vector2(avoidanceSphere.Center.X, avoidanceSphere.Center.Y), new Rectangle(0, 0, 9, 9), Color.Cyan, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
             }
+        }
+
+        public void DrawDead(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(Texture, Position, chassis, Color.Gray, chassisAngle, Origin, 1.0f, SpriteEffects.None, 0);
         }
     }
 }

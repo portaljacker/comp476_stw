@@ -73,6 +73,10 @@ namespace SuperTank
                                 Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
                                 if ((bullets[i].Position - spherePos).Length() <= 10)
                                 {
+                                    if (t1.LivesRemaining > 0)
+                                    {
+                                        t1.LivesRemaining--;
+                                    }
                                     bullets.RemoveAt(i);
                                     i--;
                                     break;
@@ -95,6 +99,10 @@ namespace SuperTank
                                         Vector2 spherePos = new Vector2(s.Center.X, s.Center.Y);
                                         if ((bullets[i].Position - spherePos).Length() <= 10)
                                         {
+                                            if (e.LivesRemaining > 0)
+                                            {
+                                                e.LivesRemaining--;
+                                            }
                                             bullets.RemoveAt(i);
                                             i--;
                                             break;

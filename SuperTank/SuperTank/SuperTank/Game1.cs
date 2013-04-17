@@ -183,8 +183,6 @@ namespace SuperTank
             ets[2].ChassisAngle = -180;
             ets[2].CannonAngle = -180;
 
-
-
             bm = new BulletManager(bullet);
 
             //display the mouse
@@ -312,6 +310,12 @@ namespace SuperTank
 
                 case GameState.Play:
 
+
+                    if (t1.livesRemaining <= 0)
+                    {
+                        currentGameState = GameState.Lose;
+                    }
+
                     timer0 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer1 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer2 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -320,39 +324,39 @@ namespace SuperTank
                         switch (i)
                         {
                             case 0:
-                                if (timer0 > interval)
+                                if (timer0 > interval && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame++;
                                     ets[i].updateRectangles();
                                     timer0 = 0f;
                                 }
-                                if (ets[i].CurrentFrame == 2)
+                                if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame = 0;
                                     ets[i].updateRectangles();
                                 }
                                 break;
                             case 1:
-                                if (timer1 > interval)
+                                if (timer1 > interval && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame++;
                                     ets[i].updateRectangles();
                                     timer1 = 0f;
                                 }
-                                if (ets[i].CurrentFrame == 2)
+                                if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame = 0;
                                     ets[i].updateRectangles();
                                 }
                                 break;
                             case 2:
-                                if (timer2 > interval)
+                                if (timer2 > interval && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame++;
                                     ets[i].updateRectangles();
                                     timer2 = 0f;
                                 }
-                                if (ets[i].CurrentFrame == 2)
+                                if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
                                     ets[i].CurrentFrame = 0;
                                     ets[i].updateRectangles();
@@ -376,7 +380,6 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire0 = false;
-                                        //ets[i].Target = null;
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -386,7 +389,6 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire1 = false;
-                                        //ets[i].Target = null;
                                     }
                                     
 
@@ -397,7 +399,6 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire2 = false;
-                                        //ets[i].Target = null;
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -410,15 +411,6 @@ namespace SuperTank
                         }
 
                         ets[i].Wander(m1, t1, ets);
-                    }
-
-                    KeyboardState mKeys = Keyboard.GetState();
-                    if (mKeys.IsKeyDown(Keys.Up) == true)
-                    {
-                        if (t1.LivesRemaining > 0)
-                            t1.LivesRemaining -= 1;
-                        else
-                            currentGameState = GameState.Lose;
                     }
 
                     IsMouseVisible = false;
@@ -602,7 +594,7 @@ namespace SuperTank
                             t1.CannonAngle = (float)Math.Atan2(playerAim.Y, playerAim.X);
                         }
 
-                        if (playerFireCount > 0)
+                        if (playerFireCount > 0 && !canPlayerFire)
                         {
                             playerFireCount--;
                         }
@@ -612,7 +604,7 @@ namespace SuperTank
                             playerFireCount = 100;
                         }
 
-                        if (fireCount0 > 0)
+                        if (fireCount0 > 0 && !canFire0)
                         {
                             fireCount0--;
                             ets[0].Target = null;
@@ -623,7 +615,7 @@ namespace SuperTank
                             fireCount0 = 100;
                         }
 
-                        if (fireCount1 > 0)
+                        if (fireCount1 > 0 && !canFire1)
                         {
                             fireCount1--;
                             ets[1].Target = null;
@@ -634,7 +626,7 @@ namespace SuperTank
                             fireCount1 = 100;
                         }
 
-                        if (fireCount2 > 0)
+                        if (fireCount2 > 0 && !canFire2)
                         {
                             fireCount2--;
                             ets[2].Target = null;
@@ -691,8 +683,6 @@ namespace SuperTank
                     break;
                 case GameState.Tutorial:
                     m1.Draw(spriteBatch);
-                    //t1.Draw(spriteBatch);
-                    //et1.Draw(spriteBatch);
 
                     spriteBatch.Draw(wizard, new Rectangle(graphics.PreferredBackBufferWidth / 8, graphics.PreferredBackBufferHeight / 4, (2 * wizard.Width / 3), (2 * wizard.Height / 3)), Color.White);
                     spriteBatch.Draw(speechBubble, new Rectangle(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight / 5, (3 * speechBubble.Width / 4), (3 * speechBubble.Height / 4)), Color.White);
@@ -751,7 +741,15 @@ namespace SuperTank
                     t1.Draw(spriteBatch);
                     foreach (EnemyTanks et in ets)
                     {
-                        et.Draw(spriteBatch);
+                        if (et.LivesRemaining > 0)
+                        {
+                            et.Draw(spriteBatch);
+                        }
+
+                        else
+                        {
+                            et.DrawDead(spriteBatch);
+                        }
                     }
 
                     foreach (Bullet b in bm.Bullets)
@@ -765,7 +763,7 @@ namespace SuperTank
                     spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
                     spriteBatch.DrawString(
                         pericles20,
-                        " X " + t1.LivesRemaining.ToString(),
+                        " X " + t1.livesRemaining.ToString(),
                         livesLocation,
                         Color.White);
                     spriteBatch.Draw(life, new Rectangle(graphics.PreferredBackBufferWidth / 30, (12 * graphics.PreferredBackBufferHeight / 13), life.Width, life.Height), Color.White);
