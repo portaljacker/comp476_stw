@@ -94,18 +94,18 @@ namespace SuperTank
         List<EnemyTanks> ets = new List<EnemyTanks>();
 
         float playerTimer = 0f;
+        float timer0 = 0f;
         float timer1 = 0f;
         float timer2 = 0f;
-        float timer3 = 0f;
         float interval = 100f;
         float playerFireCount = 100f;
+        float fireCount0 = 100f;
         float fireCount1 = 100f;
         float fireCount2 = 100f;
-        float fireCount3 = 100f;
         bool canPlayerFire = true;
+        bool canFire0 = true;
         bool canFire1 = true;
         bool canFire2 = true;
-        bool canFire3 = true;
         float step = 1f;
         BulletManager bm;
 
@@ -311,14 +311,28 @@ namespace SuperTank
 
 
                 case GameState.Play:
+
+                    timer0 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer1 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer2 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                    timer3 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     for (int i = 0; i < 3; i++)
                     {
                         switch (i)
                         {
                             case 0:
+                                if (timer0 > interval)
+                                {
+                                    ets[i].CurrentFrame++;
+                                    ets[i].updateRectangles();
+                                    timer0 = 0f;
+                                }
+                                if (ets[i].CurrentFrame == 2)
+                                {
+                                    ets[i].CurrentFrame = 0;
+                                    ets[i].updateRectangles();
+                                }
+                                break;
+                            case 1:
                                 if (timer1 > interval)
                                 {
                                     ets[i].CurrentFrame++;
@@ -331,25 +345,12 @@ namespace SuperTank
                                     ets[i].updateRectangles();
                                 }
                                 break;
-                            case 1:
+                            case 2:
                                 if (timer2 > interval)
                                 {
                                     ets[i].CurrentFrame++;
                                     ets[i].updateRectangles();
                                     timer2 = 0f;
-                                }
-                                if (ets[i].CurrentFrame == 2)
-                                {
-                                    ets[i].CurrentFrame = 0;
-                                    ets[i].updateRectangles();
-                                }
-                                break;
-                            case 2:
-                                if (timer3 > interval)
-                                {
-                                    ets[i].CurrentFrame++;
-                                    ets[i].updateRectangles();
-                                    timer3 = 0f;
                                 }
                                 if (ets[i].CurrentFrame == 2)
                                 {
@@ -363,37 +364,40 @@ namespace SuperTank
 
                         }
 
-                        bool willShoot = ets[i].attack(t1, ets);
+                        bool willShoot = ets[i].scan(t1, ets);
                         if (willShoot)
                         {
+                            
+
                             switch (i)
                             {
                                 case 0:
-                                    if (canFire1)
+                                    if (canFire0)
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
-                                        canFire1 = false;
-
+                                        canFire0 = false;
+                                        //ets[i].Target = null;
                                     }
 
                                     ets[i].FoundTarget = false;
                                     break;
                                 case 1:
-                                    if (canFire2)
+                                    if (canFire1)
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
-                                        canFire2 = false;
-
+                                        canFire1 = false;
+                                        //ets[i].Target = null;
                                     }
+                                    
 
                                     ets[i].FoundTarget = false;
                                     break;
                                 case 2:
-                                    if (canFire3)
+                                    if (canFire2)
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
-                                        canFire3 = false;
-
+                                        canFire2 = false;
+                                        //ets[i].Target = null;
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -588,14 +592,14 @@ namespace SuperTank
 
                         }
 
-                        Vector2 aim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
+                        Vector2 playerAim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
                         if (Mouse.GetState().X > t1.Position.X && Mouse.GetState().Y > t1.Position.Y)
                         {
-                            t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                            t1.CannonAngle = (float)Math.Atan2(playerAim.Y, playerAim.X);
                         }
                         else
                         {
-                            t1.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                            t1.CannonAngle = (float)Math.Atan2(playerAim.Y, playerAim.X);
                         }
 
                         if (playerFireCount > 0)
@@ -608,9 +612,21 @@ namespace SuperTank
                             playerFireCount = 100;
                         }
 
+                        if (fireCount0 > 0)
+                        {
+                            fireCount0--;
+                            ets[0].Target = null;
+                        }
+                        else
+                        {
+                            canFire0 = true;
+                            fireCount0 = 100;
+                        }
+
                         if (fireCount1 > 0)
                         {
                             fireCount1--;
+                            ets[1].Target = null;
                         }
                         else
                         {
@@ -621,6 +637,7 @@ namespace SuperTank
                         if (fireCount2 > 0)
                         {
                             fireCount2--;
+                            ets[2].Target = null;
                         }
                         else
                         {
@@ -628,19 +645,11 @@ namespace SuperTank
                             fireCount2 = 100;
                         }
 
-                        if (fireCount3 > 0)
-                        {
-                            fireCount3--;
-                        }
-                        else
-                        {
-                            canFire3 = true;
-                            fireCount3 = 100;
-                        }
-
                         bm.update(m1, t1, ets);
                         break;
                     }
+
+            
             base.Update(gameTime);
         }
 

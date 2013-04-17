@@ -56,11 +56,12 @@ namespace SuperTank
             : base(tex, pos, color)
         {
             count = 10;
+            this.CannonAngle = this.ChassisAngle;
         }
 
         
 
-        public bool attack(Tank t, List<EnemyTanks>others)
+        public bool scan(Tank t, List<EnemyTanks>others)
         {
             for (int j = 0; j < t.Spheres.Count; j++)
             {
@@ -152,7 +153,24 @@ namespace SuperTank
             Vector2 newPos = new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
             updatePosition(m, newPos, t, others);
 
-            CannonAngle = ChassisAngle;
+
+            if (this.Target!=null)
+            {
+                Vector2 aim = new Vector2(this.Target.Position.X, this.Target.Position.Y) - new Vector2(this.Position.X, this.Position.Y);
+                if (this.Target.Position.X > this.Position.X && this.Target.Position.Y > this.Position.Y)
+                {
+                    this.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                }
+                else
+                {
+                    this.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                }
+            }
+
+            else
+            {
+                this.CannonAngle = this.ChassisAngle;
+            }
 
             updateSpheres();
             count--;
