@@ -128,6 +128,9 @@ namespace SuperTank
         MouseState ms;
         MouseState lastMs;
 
+        private Song titleMusic;
+        private Song gameMusic;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -259,6 +262,11 @@ namespace SuperTank
             explosions.Add(new ParticleSystem(images, Vector2.Zero, 1, 0));
             explosions.Add(new ParticleSystem(images, Vector2.Zero, 3, 0));
             explosions.Add(new ParticleSystem(images, Vector2.Zero, 2, 0));
+
+            titleMusic = Content.Load<Song>("STW title");
+            gameMusic = Content.Load<Song>("STW Battle");
+            MediaPlayer.Play(titleMusic);
+            MediaPlayer.IsRepeating = true;
             // TODO: use this.Content to load your game content here
         }
 
@@ -319,7 +327,12 @@ namespace SuperTank
                     break;
                 case GameState.MainMenu:
                     if (btnArray[0].isClicked == true)
+                    {
                         currentGameState = GameState.Tutorial;
+                        MediaPlayer.Stop();
+                        MediaPlayer.Play(gameMusic);
+                        MediaPlayer.IsRepeating = true;
+                    }
                     else if (btnArray[1].isClicked == true)
                     {
                         currentGameState = GameState.Controls;
@@ -343,7 +356,6 @@ namespace SuperTank
 
 
                 case GameState.Play:
-
                     if (resetTanks)
                     {
                         m1 = new Map(tiles);
@@ -705,8 +717,8 @@ namespace SuperTank
                                     }
                                     break;
 
-                                case Keys.R:
-                                    if (lastKs.IsKeyUp(Keys.R))
+                                case Keys.U:
+                                    if (lastKs.IsKeyUp(Keys.U))
                                     {
                                         resetTanks = true;
                                     }
