@@ -17,15 +17,12 @@ namespace SuperTank
 {
     class EnemyTanks : Tank
     {
-        //private Vector2 position;
-        //private Vector2 velocity; = new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
-        //private float theta;        // point in circle for wander behavior
-        private const float MAXSPEED = 0.01f;
         private int count;
         private bool foundTarget;
         private Tank target;
         private bool addedToWalls = false;
-        //private float orientation; //Used to allign character with target.
+        private int seekCount;
+        private bool still = false;
 
         new public int LivesRemaining = 3;
 
@@ -53,10 +50,19 @@ namespace SuperTank
             }
         }
 
+        public bool Still
+        {
+            get
+            {
+                return still;
+            }
+        }
+
         public EnemyTanks(Texture2D tex, Vector2 pos, int color)
             : base(tex, pos, color)
         {
             count = 10;
+            seekCount = 100;
             this.CannonAngle = this.ChassisAngle;
         }
 
@@ -71,7 +77,7 @@ namespace SuperTank
 
             for (int j = 0; j < t.Spheres.Count; j++)
             {
-                if (this.ShootSphere.Intersects(t.Spheres[j]) && foundTarget == false && t.LivesRemaining > 0)
+                if (this.ShootSphere.Intersects(t.Spheres[j]) && foundTarget == false && t.LivesRemaining > 0 && seekCount == 100)
                 {
                     this.foundTarget = true;
                     this.target = t;
@@ -98,8 +104,53 @@ namespace SuperTank
                 }
             }
 
-            return false;
+            this.target = null;
+            this.foundTarget = false;
+            return foundTarget;
             
+        }
+
+        public void Seek(Map m, Tank t, List<EnemyTanks> others)
+        {
+            if (target != t)
+            {
+                return;
+            }
+
+            if (seekCount == 100)
+            {
+                Vector2 aim = new Vector2(this.Target.Position.X, this.Target.Position.Y) - new Vector2(this.Position.X, this.Position.Y);
+                if (this.Target.Position.X > this.Position.X && this.Target.Position.Y > this.Position.Y)
+                {
+                    this.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                }
+                else
+                {
+                    this.CannonAngle = (float)Math.Atan2(aim.Y, aim.X);
+                }
+
+                Vector2 direction = target.Position - Position;
+
+
+                direction.Normalize();
+                Vector2 newPos = new Vector2((float)Math.Cos((ChassisAngle)) * direction.X, (float)Math.Sin((ChassisAngle)) * direction.Y);
+
+                if ((this.Position - target.Position).Length() >= 105)
+                {
+                    this.still = false;
+                    ChassisAngle = CannonAngle;
+                    updateSpheres();
+                    this.updatePosition(m, direction, t, others);
+                }
+
+                else
+                {
+                    this.still = true;
+                }
+
+
+            }
+
         }
 
         public void Wander(Map m, Tank t, List<EnemyTanks>others)
@@ -122,16 +173,7 @@ namespace SuperTank
 
             Random rand = new Random();
 
-            // parameters for the target circle the wandering bot will be seeking
-            float radius = 1.1f;
-            float distance = 1.5f;
             float rotStep = 1.0f;
-
-            // place a circle in front of the wandering bot
-            Vector2 targetCircle = new Vector2((float)Math.Cos((ChassisAngle))*1.5f, (float)Math.Sin((ChassisAngle))*1.5f);
-            targetCircle.Normalize();
-            targetCircle *= distance;
-            targetCircle += Position;
 
             // calculate the angle where the point on the circle will be
             if (count == 10)
@@ -153,22 +195,6 @@ namespace SuperTank
                         }
                     }
                 }
-            }
-
-            // calculate the point on the circle and store it
-            Vector2 targetOffset = new Vector2(radius * (float)Math.Cos(ChassisAngle), radius * (float)Math.Sin(ChassisAngle));
-            Vector2 targetPos = targetCircle + targetOffset;
-
-            // use Seek to get to the newly calculated point
-            Vector2 targetDistance = targetPos - Position;
-            targetDistance.Normalize();
-            targetDistance *= new Vector2((float)Math.Cos((ChassisAngle)) * 1f, (float)Math.Sin((ChassisAngle)) * 1f);
-
-            if (targetDistance.Length() > MAXSPEED)
-            {
-                targetDistance.Normalize();
-                targetDistance.X *= MAXSPEED;
-                targetDistance.Y *= MAXSPEED;
             }
 
             // update position
@@ -212,6 +238,12 @@ namespace SuperTank
                 {
                     if (this.Spheres[i].Intersects(b))
                     {
+                        if (seekCount == 100 && seekCount > 0)
+                        {
+                            seekCount--;
+                        }
+                       
+                        this.target = null;
                         this.Position -= pos;
                         this.updateSpheres();
                         break;
@@ -255,6 +287,16 @@ namespace SuperTank
                         }
                     }
                 }
+            }
+
+            if (seekCount < 100 && seekCount > 0)
+            {
+                seekCount--;
+            }
+
+            if (seekCount == 0)
+            {
+                seekCount = 100;
             }
         }
 

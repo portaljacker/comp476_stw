@@ -347,40 +347,58 @@ namespace SuperTank
                             case 0:
                                 if (timer0 > interval && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame++;
-                                    ets[i].updateRectangles();
-                                    timer0 = 0f;
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame++;
+                                        ets[i].updateRectangles();
+                                        timer0 = 0f;
+                                    }
                                 }
                                 if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame = 0;
-                                    ets[i].updateRectangles();
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame = 0;
+                                        ets[i].updateRectangles();
+                                    }
                                 }
                                 break;
                             case 1:
                                 if (timer1 > interval && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame++;
-                                    ets[i].updateRectangles();
-                                    timer1 = 0f;
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame++;
+                                        ets[i].updateRectangles();
+                                        timer1 = 0f;
+                                    }
                                 }
                                 if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame = 0;
-                                    ets[i].updateRectangles();
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame = 0;
+                                        ets[i].updateRectangles();
+                                    }
                                 }
                                 break;
                             case 2:
                                 if (timer2 > interval && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame++;
-                                    ets[i].updateRectangles();
-                                    timer2 = 0f;
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame++;
+                                        ets[i].updateRectangles();
+                                        timer2 = 0f;
+                                    }
                                 }
                                 if (ets[i].CurrentFrame == 2 && ets[i].LivesRemaining > 0)
                                 {
-                                    ets[i].CurrentFrame = 0;
-                                    ets[i].updateRectangles();
+                                    if (!ets[i].Still)
+                                    {
+                                        ets[i].CurrentFrame = 0;
+                                        ets[i].updateRectangles();
+                                    }
                                 }
                                 break;
 
@@ -430,8 +448,14 @@ namespace SuperTank
                             }
 
                         }
-
-                        ets[i].Wander(m1, t1, ets);
+                        if (ets[i].Target != null && ets[i].Target == t1)
+                        {
+                            ets[i].Seek(m1, t1, ets);
+                        }
+                        else
+                        {
+                            ets[i].Wander(m1, t1, ets);
+                            }
                     }
 
                     IsMouseVisible = false;
