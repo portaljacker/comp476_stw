@@ -118,6 +118,7 @@ namespace SuperTank
         bool canFire2 = true;
         float step = 1f;
         BulletManager bm;
+        bool resetTanks = false;
 
         List<ParticleSystem> explosions;
         List<Texture2D> images;
@@ -342,6 +343,24 @@ namespace SuperTank
 
 
                 case GameState.Play:
+
+                    if (resetTanks)
+                    {
+                        m1 = new Map(tiles);
+                        t1 = new Tank(tankTex, new Vector2(80, 60), 3);
+                        ets.Clear();
+                        ets.Add(new EnemyTanks(tankTex, new Vector2(80, 600), 1));
+                        ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 600), 2));
+                        ets[1].ChassisAngle = -90;
+                        ets[1].CannonAngle = -90;
+                        ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 60), 0));
+                        ets[2].ChassisAngle = -180;
+                        ets[2].CannonAngle = -180;
+
+                        resetTanks = false;
+                    }
+
+
                     for (int i = 0; i < 3; i++)
                     {
                         explosions[i].Update();
@@ -683,6 +702,13 @@ namespace SuperTank
                                     if (lastKs.IsKeyUp(Keys.Space))
                                     {
                                         Tank.DrawBSPheres = !Tank.DrawBSPheres;
+                                    }
+                                    break;
+
+                                case Keys.R:
+                                    if (lastKs.IsKeyUp(Keys.R))
+                                    {
+                                        resetTanks = true;
                                     }
                                     break;
                             }
