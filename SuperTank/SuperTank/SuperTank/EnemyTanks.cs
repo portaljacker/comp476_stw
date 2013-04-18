@@ -24,7 +24,7 @@ namespace SuperTank
         private int seekCount;
         private bool still = false;
 
-        new public int LivesRemaining = 3;
+        new public int LivesRemaining = 5;
 
         public bool FoundTarget
         {

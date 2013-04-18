@@ -49,18 +49,17 @@ namespace SuperTank
         // title
         private Texture2D title;
 
-        private Texture2D life;
-
         SpriteFont pericles20;
         SpriteFont pericles16;
-
-        private Vector2 livesLocation;
 
         private Texture2D hat1;
         private Texture2D hat2;
         private Texture2D hat3;
 
         private CoolDownBar cdBar;
+        private CoolDownBar cdBar1;
+        private CoolDownBar cdBar2;
+        private CoolDownBar cdBar3;
 
         // enum for the different states of the game
         enum GameState
@@ -182,7 +181,7 @@ namespace SuperTank
 
             Tank.texture2 = bullet;
 
-            livesOffset = 360;
+            livesOffset = 300;
 
             m1 = new Map(tiles);
             t1 = new Tank(tankTex, new Vector2(80, 60), 3);
@@ -202,7 +201,10 @@ namespace SuperTank
 
             bm = new BulletManager(bullet);
 
-            cdBar = new CoolDownBar(this);
+            cdBar = new CoolDownBar(this, 2);
+            cdBar1 = new CoolDownBar(this, 1);
+            cdBar2 = new CoolDownBar(this, 3);
+            cdBar3 = new CoolDownBar(this, 0);
 
             //display the mouse
             IsMouseVisible = true;
@@ -431,6 +433,7 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire0 = false;
+                                        cdBar1.cd = 0;
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -440,6 +443,7 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire1 = false;
+                                        cdBar2.cd = 0;
                                     }
                                     
 
@@ -450,6 +454,7 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire2 = false;
+                                        cdBar3.cd = 0;
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -489,6 +494,36 @@ namespace SuperTank
                         else if (cdBar.cd >= playerFireCount)
                         {
                             cdBar.cd = playerFireCount;
+                        }
+
+                        if (cdBar1.cd == 0)
+                        {
+                            while (cdBar1.cd < fireCount0)
+                                cdBar1.cd++;
+                        }
+                        else if (cdBar1.cd >= fireCount0)
+                        {
+                            cdBar1.cd = fireCount0;
+                        }
+
+                        if (cdBar2.cd == 0)
+                        {
+                            while (cdBar2.cd < fireCount1)
+                                cdBar2.cd++;
+                        }
+                        else if (cdBar2.cd >= fireCount1)
+                        {
+                            cdBar2.cd = fireCount1;
+                        }
+
+                        if (cdBar3.cd == 0)
+                        {
+                            while (cdBar3.cd < fireCount2)
+                                cdBar3.cd++;
+                        }
+                        else if (cdBar3.cd >= fireCount2)
+                        {
+                            cdBar3.cd = fireCount2;
                         }
 
                         foreach (Keys key in keys)
@@ -852,7 +887,7 @@ namespace SuperTank
                             spriteBatch.DrawString(
                                 pericles20,
                                 " X " + ets[i].LivesRemaining.ToString(),
-                                new Vector2((graphics.PreferredBackBufferWidth / 30) + 50 + 360 * k, (14 * graphics.PreferredBackBufferHeight / 15)),
+                                new Vector2((graphics.PreferredBackBufferWidth / 30) + 50 + 300 * k, (14 * graphics.PreferredBackBufferHeight / 15)),
                                 Color.White);
                             k++;
                     }
@@ -878,6 +913,12 @@ namespace SuperTank
                         Color.White);
                     t1Life.Draw(spriteBatch);
                     cdBar.draw(spriteBatch);
+                    if(ets[0].LivesRemaining > 0)
+                        cdBar1.draw(spriteBatch);
+                    if (ets[1].LivesRemaining > 0)
+                        cdBar2.draw(spriteBatch);
+                    if (ets[2].LivesRemaining > 0)
+                        cdBar3.draw(spriteBatch);
                     break;
             }
             
