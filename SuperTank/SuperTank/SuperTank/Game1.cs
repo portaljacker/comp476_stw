@@ -38,6 +38,9 @@ namespace SuperTank
         // lose screen background
         private Texture2D GameOver;
 
+        // win screen background
+        private Texture2D winFool;
+
         // tutorial textures
         private Texture2D wizard;
         private Texture2D speechBubble;
@@ -92,8 +95,13 @@ namespace SuperTank
 
         Map m1;
         Tank t1;
-        //EnemyTanks et1;
+
+        Tank t1Life;
+
         List<EnemyTanks> ets = new List<EnemyTanks>();
+        List<EnemyTanks> etLives = new List<EnemyTanks>();
+
+        int livesOffset;
 
         float playerTimer = 0f;
         float timer0 = 0f;
@@ -168,20 +176,18 @@ namespace SuperTank
             pericles20 = Content.Load<SpriteFont>("Pericles20");
             pericles16 = Content.Load<SpriteFont>("Pericles16");
 
-
-
             GameOver = Content.Load<Texture2D>("gameOver");
 
-            int offset = 50;
-
-            livesLocation = new Vector2((graphics.PreferredBackBufferWidth / 30) + offset, (14 * graphics.PreferredBackBufferHeight / 15));
-
-            life = Content.Load<Texture2D>("life");
+            winFool = Content.Load<Texture2D>("win");
 
             Tank.texture2 = bullet;
 
+            livesOffset = 360;
+
             m1 = new Map(tiles);
             t1 = new Tank(tankTex, new Vector2(80, 60), 3);
+            t1Life = new Tank(tankTex, new Vector2(graphics.PreferredBackBufferWidth / 20, (21 * graphics.PreferredBackBufferHeight / 22)), 3);
+
             ets.Add(new EnemyTanks(tankTex, new Vector2(80, 600), 1));
             ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 600), 2));
             ets[1].ChassisAngle = -90;
@@ -189,6 +195,10 @@ namespace SuperTank
             ets.Add(new EnemyTanks(tankTex, new Vector2(1180, 60), 0));
             ets[2].ChassisAngle = -180;
             ets[2].CannonAngle = -180;
+
+            etLives.Add(new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 20) + livesOffset, (21 * graphics.PreferredBackBufferHeight / 22)), 1));
+            etLives.Add(new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 20) + livesOffset * 2, (21 * graphics.PreferredBackBufferHeight / 22)), 2));
+            etLives.Add(new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 20) + livesOffset * 3, (21 * graphics.PreferredBackBufferHeight / 22)), 0));
 
             bm = new BulletManager(bullet);
 
@@ -781,6 +791,29 @@ namespace SuperTank
                             new Vector2((graphics.PreferredBackBufferWidth / 3) + (graphics.PreferredBackBufferWidth / 15), (3 * graphics.PreferredBackBufferHeight / 4)), Color.White);
                     }
                     break;
+                case GameState.Win:
+                    m1.Draw(spriteBatch);
+                    t1.Draw(spriteBatch);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (ets[i].LivesRemaining > 0)
+                        {
+                            ets[i].Draw(spriteBatch);
+                        }
+
+                        else
+                        {
+                            ets[i].DrawDead(spriteBatch);
+                            explosions[i].Draw(spriteBatch);
+                        }
+                    }
+                    spriteBatch.Draw(winFool, new Rectangle((graphics.PreferredBackBufferWidth / 2) - winFool.Width / 2, (graphics.PreferredBackBufferHeight / 2) - winFool.Height / 2, winFool.Width, winFool.Height), Color.White);
+                    spriteBatch.DrawString(
+                        pericles20,
+                        " You destroyed these nincompoops!!! ",
+                        new Vector2((graphics.PreferredBackBufferWidth / 2) - graphics.PreferredBackBufferWidth / 4, (graphics.PreferredBackBufferHeight / 2) + graphics.PreferredBackBufferHeight / 4),
+                        Color.White);
+                    break;
                 case GameState.Play:
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
@@ -798,6 +831,24 @@ namespace SuperTank
                         }
                     }
 
+                    int k = 1;
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        etLives[i].Draw(spriteBatch);
+                            spriteBatch.DrawString(
+                                pericles20,
+                                " X " + ets[i].LivesRemaining.ToString(),
+                                new Vector2((graphics.PreferredBackBufferWidth / 30) + 50 + 360 * k, (14 * graphics.PreferredBackBufferHeight / 15)),
+                                Color.White);
+                            k++;
+                    }
+
+                    if (ets[0].LivesRemaining == 0 && ets[1].LivesRemaining == 0 && ets[2].LivesRemaining == 0)
+                    {
+                        currentGameState = GameState.Win;
+                    }
+
                     foreach (Bullet b in bm.Bullets)
                     {
                         if (b.LifeTime <91/*< 521*/)
@@ -810,9 +861,9 @@ namespace SuperTank
                     spriteBatch.DrawString(
                         pericles20,
                         " X " + t1.livesRemaining.ToString(),
-                        livesLocation,
+                        new Vector2((graphics.PreferredBackBufferWidth / 30) + 50, (14 * graphics.PreferredBackBufferHeight / 15)),
                         Color.White);
-                    spriteBatch.Draw(life, new Rectangle(graphics.PreferredBackBufferWidth / 30, (12 * graphics.PreferredBackBufferHeight / 13), life.Width, life.Height), Color.White);
+                    t1Life.Draw(spriteBatch);
                     break;
             }
             
