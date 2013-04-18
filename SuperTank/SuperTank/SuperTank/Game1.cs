@@ -91,6 +91,7 @@ namespace SuperTank
         Texture2D reticle;
         Texture2D bullet;
         Texture2D tiles;
+        Texture2D frame;
 
         Map m1;
         Tank t1;
@@ -167,6 +168,7 @@ namespace SuperTank
             tankTex = Content.Load<Texture2D>("tanksheet4");
             bullet = Content.Load<Texture2D>("bullet");
             tiles = Content.Load<Texture2D>("tiles");
+            frame = Content.Load<Texture2D>("stwhudframe");
 
             wizard = Content.Load<Texture2D>("wizard");
             speechBubble = Content.Load<Texture2D>("bubble");
@@ -879,6 +881,10 @@ namespace SuperTank
                         }
                     }
 
+                    spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+
+                    spriteBatch.Draw(frame, new Vector2(0,720), new Rectangle(0, 0, frame.Width, frame.Height), Color.White, 0f, new Vector2(0,0), 1.0f, SpriteEffects.None, 0);
+
                     int k = 1;
 
                     for (int i = 0; i < 3; i++)
@@ -905,7 +911,7 @@ namespace SuperTank
                         }
                     }
 
-                    spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
+                    
                     spriteBatch.DrawString(
                         pericles20,
                         " X " + t1.livesRemaining.ToString(),
