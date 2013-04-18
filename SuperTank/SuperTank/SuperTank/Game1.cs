@@ -60,7 +60,7 @@ namespace SuperTank
         private Texture2D hat2;
         private Texture2D hat3;
 
-        
+        private CoolDownBar cdBar;
 
         // enum for the different states of the game
         enum GameState
@@ -201,6 +201,8 @@ namespace SuperTank
             etLives.Add(new EnemyTanks(tankTex, new Vector2((graphics.PreferredBackBufferWidth / 20) + livesOffset * 3, (21 * graphics.PreferredBackBufferHeight / 22)), 0));
 
             bm = new BulletManager(bullet);
+
+            cdBar = new CoolDownBar(this);
 
             //display the mouse
             IsMouseVisible = true;
@@ -475,7 +477,18 @@ namespace SuperTank
                             {
                                 bm.createBullet(t1.TankColor, t1.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
                                 canPlayerFire = false;
+                                cdBar.cd = 0;
                             }
+                        }
+
+                        if (cdBar.cd == 0)
+                        {
+                            while (cdBar.cd < playerFireCount)
+                                cdBar.cd++;
+                        }
+                        else if (cdBar.cd >= playerFireCount)
+                        {
+                            cdBar.cd = playerFireCount;
                         }
 
                         foreach (Keys key in keys)
@@ -864,6 +877,7 @@ namespace SuperTank
                         new Vector2((graphics.PreferredBackBufferWidth / 30) + 50, (14 * graphics.PreferredBackBufferHeight / 15)),
                         Color.White);
                     t1Life.Draw(spriteBatch);
+                    cdBar.draw(spriteBatch);
                     break;
             }
             
