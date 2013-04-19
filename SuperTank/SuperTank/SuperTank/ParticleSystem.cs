@@ -1,4 +1,6 @@
-﻿using System;
+﻿//The Particle and ParticleSystem classes were based on the following tutorial: http://rbwhitaker.wikidot.com/2d-particle-engine-1
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +18,7 @@ namespace SuperTank
         private int type;
         private int speed;
 
+        //Constructor.
         public ParticleSystem(List<Texture2D> images, Vector2 location, int type, int speed)
         {
             EmitterLocation = location;
@@ -26,17 +29,19 @@ namespace SuperTank
             this.speed = speed;
         }
 
+        //Updates all particles.
         public void Update()
         {
             int total = 5;
 
             for (int i = 0; i < total; i++)
             {
-                particles.Add(GenerateNewParticle());
+                particles.Add(GenerateNewParticle()); //Creates new particle.
             }
 
             for (int particle = 0; particle < particles.Count; particle++)
             {
+                //Removes dead particle.
                 particles[particle].Update();
                 if (particles[particle].timeToLive <= 0)
                 {
@@ -46,8 +51,10 @@ namespace SuperTank
             }
         }
 
+        //This method generates particles.
         private Particle GenerateNewParticle()
         {
+            //Create initial particle properties and location to emit from.
             Texture2D texture = images[random.Next(images.Count)];
             Vector2 position = EmitterLocation;
             Vector2 velocity = new Vector2(1f * (float)(random.NextDouble() * 2 - 1), 1f * (float)(random.NextDouble() * 2 - 1));
@@ -61,7 +68,7 @@ namespace SuperTank
                     velocity.Y *= -1.0f;
             }
 
-
+            //Decide on particle color.
             Color color = new Color((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
 
             if (type == 1)
@@ -80,6 +87,7 @@ namespace SuperTank
             return new Particle(texture, position, velocity, angle, angularVelocity, color, size, timeToLive);
         }
 
+        //Draw method.
         public void Draw(SpriteBatch spriteBatch)
         {
             for (int index = 0; index < particles.Count; index++)

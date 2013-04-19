@@ -1,4 +1,6 @@
-﻿using System;
+﻿//This is the class that stores map data.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -14,14 +16,16 @@ namespace SuperTank
     class Map
     {
         private Texture2D tex;
-        private int[,] grid;
-        private List<BoundingSphere> walls;
+        private int[,] grid; //Integer array that determines tile type.
+        private List<BoundingSphere> walls; //List of bounding spheres to match with wall tiles.
 
+        //Accessor for specific tile.
         public int getTileType(int i, int j)
         {
             return grid[i, j];
         }
 
+        //Accessor for list of wall spheres.
         public List<BoundingSphere> Walls
         {
             get
@@ -30,12 +34,14 @@ namespace SuperTank
             }
         }
 
+        //Constructor.
         public Map(Texture2D texture)
         {
             tex = texture;
 
             walls = new List<BoundingSphere>();
 
+            //Fill grid with integers representing floor tiles.
             grid = new int[64, 36];
 
             for (int col = 0; col < 64; col++)
@@ -47,6 +53,8 @@ namespace SuperTank
 
             }
 
+            //Placement of walls and obstacles at specific locations.
+            //Add a bounding sphere at each wall or obstacle tile coordinate.
             for (int row = 0; row < 35; row++)
             {
                 grid[0, row] = 1;
@@ -207,38 +215,39 @@ namespace SuperTank
             }
         }
 
+        //Draw the tiles.
         public void Draw(SpriteBatch spriteBatch)
         {
             for (int col = 0; col < 64; col++)
             {
                 for (int row = 0; row < 36; row++)
                 {
-                    if (grid[col, row] == 0)
+                    if (grid[col, row] == 0) //Ground
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(0, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }
 
-                    else if (grid[col, row] == 1)
+                    else if (grid[col, row] == 1) //Stone wall
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(20, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }
 
-                    else if (grid[col, row] == 2)
+                    else if (grid[col, row] == 2) //Stump
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(40, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }
 
-                    else if (grid[col, row] == 3)
+                    else if (grid[col, row] == 3) //Sandy beach
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(60, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }
 
-                    else if (grid[col, row] == 4)
+                    else if (grid[col, row] == 4) //Shoreline
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(80, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }
 
-                    else
+                    else //Deep water (also acts as wall)
                     {
                         spriteBatch.Draw(tex, new Vector2(10 + (col * 20), 10 + (row * 20)), new Rectangle(100, 0, 20, 20), Color.White, 0f, new Vector2(10, 10), 1.0f, SpriteEffects.None, 0);
                     }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿//The Bullet and BulletManager classes were based on the following tutorial: http://rbwhitaker.wikidot.com/2d-particle-engine-1
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -13,6 +15,7 @@ namespace SuperTank
 {
     class Bullet
     {
+        //Data for bullets.
         private Texture2D texture;
         private Vector2 position;
         private int width;
@@ -104,6 +107,7 @@ namespace SuperTank
             }
         }
 
+        //Constructor for bullet.
         public Bullet(Texture2D tex, int c, Vector2 pos, Vector2 tar)
         {
             texture = tex;
@@ -112,15 +116,11 @@ namespace SuperTank
             origin = new Vector2(width / 2, height / 2);
             position = pos;
             target = tar;
-            lifeTime = 100;//530;
+            lifeTime = 100;
             bulletColor = c;
         }
 
-        /*public void Move()
-        {
-
-        }*/
-
+        //Draw method for bullet. Color coded to the tank that fires it.
         public void Draw(SpriteBatch spriteBatch)
         {
             Color c = Color.Black;

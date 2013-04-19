@@ -1,3 +1,7 @@
+//COMP476 Project Section N
+//Submitted by Team 8: Taras Kamtchatnikov, Gianni Trotta, Jordan Victor, Kevin El Hage
+//This is the main class for the game.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,12 +91,14 @@ namespace SuperTank
         GameState currentGameState = GameState.MainMenu;
         TutorialState currentTutorialState = TutorialState.Tutorial1;
 
+        //Various textures to be used during the game.
         Texture2D tankTex;
         Texture2D reticle;
         Texture2D bullet;
         Texture2D tiles;
         Texture2D frame;
 
+        
         Map m1;
         Tank t1;
 
@@ -103,6 +109,7 @@ namespace SuperTank
 
         int livesOffset;
 
+        //Various timers for animation and firing cooldowns.
         float playerTimer = 0f;
         float timer0 = 0f;
         float timer1 = 0f;
@@ -117,17 +124,23 @@ namespace SuperTank
         bool canFire1 = true;
         bool canFire2 = true;
         float step = 1f;
+
+        //Bullet manager class for all the bullets.
         BulletManager bm;
+        //Resets all tanks and map wall data in case of game-breaking bugs.
         bool resetTanks = false;
 
+        //Particle effects variables.
         List<ParticleSystem> explosions;
         List<Texture2D> images;
 
+        //Variables for input handling.
         KeyboardState ks;
         KeyboardState lastKs;
         MouseState ms;
         MouseState lastMs;
 
+        //Songs to be used in the game.
         private Song titleMusic;
         private Song gameMusic;
 
@@ -253,6 +266,7 @@ namespace SuperTank
             hat2 = Content.Load<Texture2D>("hat2");
             hat3 = Content.Load<Texture2D>("hat3");
 
+            //Load textures for the particle effects.
             images = new List<Texture2D>();
             images.Add(Content.Load<Texture2D>("circle"));
             images.Add(Content.Load<Texture2D>("star"));
@@ -297,8 +311,10 @@ namespace SuperTank
             lastMs = ms;
             ms = Mouse.GetState();
 
+
             switch (currentGameState)
             {
+                //Display all tutorial messages in succession.
                 case GameState.Tutorial:
                     if (ks.IsKeyDown(Keys.Space) && lastKs.IsKeyUp(Keys.Space))
                     {
@@ -325,6 +341,8 @@ namespace SuperTank
                         }
                     }
                     break;
+
+                //Main menu state.
                 case GameState.MainMenu:
                     if (btnArray[0].isClicked == true)
                     {
@@ -356,6 +374,8 @@ namespace SuperTank
 
 
                 case GameState.Play:
+
+                    //Resets the tanks and map wall data in case of bugs.
                     if (resetTanks)
                     {
                         m1 = new Map(tiles);
@@ -372,18 +392,20 @@ namespace SuperTank
                         resetTanks = false;
                     }
 
-
+                    //Update particle emitters for enemy tanks (displayed when tanks are defeated).
                     for (int i = 0; i < 3; i++)
                     {
                         explosions[i].Update();
                         explosions[i].EmitterLocation = ets[i].Position;
                     }
 
+                    //If player tank is defeated, switch to game over.
                     if (t1.livesRemaining <= 0)
                     {
                         currentGameState = GameState.Lose;
                     }
 
+                    //Updated timers for enemy tanks. and update their frames.
                     timer0 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer1 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     timer2 += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -454,6 +476,7 @@ namespace SuperTank
 
                         }
 
+                        //Check if enemy tanks found targets. If one is found, create new bullets to fire.
                         bool willShoot = ets[i].scan(t1, ets);
                         if (willShoot)
                         {
@@ -466,7 +489,7 @@ namespace SuperTank
                                     {
                                         bm.createBullet(ets[i].TankColor, ets[i].Position, new Vector2(ets[i].Target.Position.X, ets[i].Target.Position.Y));
                                         canFire0 = false;
-                                        cdBar1.cd = 0;
+                                        cdBar1.cd = 0; //Update cooldownt timer.
                                     }
 
                                     ets[i].FoundTarget = false;
@@ -498,6 +521,8 @@ namespace SuperTank
                             }
 
                         }
+
+                        //If enemy tank found player, seek player. Else, wander.
                         if (ets[i].Target != null && ets[i].Target == t1)
                         {
                             ets[i].Seek(m1, t1, ets);
@@ -508,7 +533,9 @@ namespace SuperTank
                             }
                     }
 
+                    //Remove mosue visibility (for targeting reticle display)
                     IsMouseVisible = false;
+                    //Mouse input handler.
                         if (lastMs.LeftButton == ButtonState.Released && ms.LeftButton == ButtonState.Pressed)
                         {
                             if (canPlayerFire)
@@ -519,6 +546,7 @@ namespace SuperTank
                             }
                         }
 
+                    //Update all cooldown bars.
                         if (cdBar.cd == 0)
                         {
                             while (cdBar.cd < playerFireCount)
@@ -559,10 +587,12 @@ namespace SuperTank
                             cdBar3.cd = fireCount2;
                         }
 
+                    //Input handler.
                         foreach (Keys key in keys)
                         {
                             switch (key)
                             {
+                                //Forward motion.
                                 case Keys.W:
                                     playerTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                                     if (playerTimer > interval)
@@ -582,6 +612,8 @@ namespace SuperTank
 
                                     t1.Position += new Vector2((float)Math.Cos((t1.ChassisAngle)) * step, (float)Math.Sin((t1.ChassisAngle)) * step);
                                     t1.updateSpheres();
+
+                                    //Check for collisions with walls after movement. If collides, undo movement.
                                     foreach(BoundingSphere b in m1.Walls)
                                     {
                                         for (int i = 0; i < t1.Spheres.Count; i++)
@@ -598,6 +630,7 @@ namespace SuperTank
                                         }
                                     }
 
+                                    //Check for collisions with other tanks after movement. If collides, undo movement.
                                     foreach (EnemyTanks et in ets)
                                     {
                                         if ((t1.Position - et.Position).Length() <= 65)
@@ -618,6 +651,7 @@ namespace SuperTank
                                     }
                                     break;
 
+                                    //Same procedures as forward motion.
                                 case Keys.S:
                                     playerTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                                     if (playerTimer > interval)
@@ -672,6 +706,7 @@ namespace SuperTank
 
                                     break;
 
+                                    //A and D keys rotate.
                                 case Keys.A:
                                     t1.ChassisAngle -= 0.03f;
                                     t1.updateRectangles();
@@ -686,6 +721,25 @@ namespace SuperTank
                                                 t1.updateRectangles();
                                                 t1.updateSpheres();
                                                 break;
+                                            }
+                                        }
+                                    }
+
+                                    foreach (EnemyTanks et in ets)
+                                    {
+                                        if ((t1.Position - et.Position).Length() <= 65)
+                                        {
+                                            for (int i = 0; i < t1.Spheres.Count; i++)
+                                            {
+                                                for (int j = 0; j < et.Spheres.Count; j++)
+                                                {
+                                                    if (t1.Spheres[i].Intersects(et.Spheres[j]))
+                                                    {
+                                                        t1.ChassisAngle += 0.03f;
+                                                        t1.updateSpheres();
+                                                        break;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -708,8 +762,29 @@ namespace SuperTank
                                             }
                                         }
                                     }
+
+                                    foreach (EnemyTanks et in ets)
+                                    {
+                                        if ((t1.Position - et.Position).Length() <= 65)
+                                        {
+                                            for (int i = 0; i < t1.Spheres.Count; i++)
+                                            {
+                                                for (int j = 0; j < et.Spheres.Count; j++)
+                                                {
+                                                    if (t1.Spheres[i].Intersects(et.Spheres[j]))
+                                                    {
+                                                        t1.ChassisAngle -= 0.03f;
+                                                        t1.updateSpheres();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     break;
 
+                                    //Debug controls. Space key displays positions of bounding spheres on tank.
+                                    //U key resets the tanks and map wall data.
                                 case Keys.Space:
                                     if (lastKs.IsKeyUp(Keys.Space))
                                     {
@@ -727,6 +802,7 @@ namespace SuperTank
 
                         }
 
+                    //Compute player tank's cannon angle based on mouse position.
                         Vector2 playerAim = new Vector2(Mouse.GetState().X, Mouse.GetState().Y) - new Vector2(t1.Position.X, t1.Position.Y);
                         if (Mouse.GetState().X > t1.Position.X && Mouse.GetState().Y > t1.Position.Y)
                         {
@@ -737,6 +813,7 @@ namespace SuperTank
                             t1.CannonAngle = (float)Math.Atan2(playerAim.Y, playerAim.X);
                         }
 
+                    //Update cooldown timers tanks.
                         if (playerFireCount > 0 && !canPlayerFire)
                         {
                             playerFireCount--;
@@ -780,6 +857,7 @@ namespace SuperTank
                             fireCount2 = 100;
                         }
 
+                    //Update all active bullets.
                         bm.update(m1, t1, ets);
                         break;
                     }
@@ -801,6 +879,7 @@ namespace SuperTank
 
             switch (currentGameState)
             {
+                    //Draw main menu graphics.
                 case GameState.MainMenu:
                     spriteBatch.Draw(menuBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
                     spriteBatch.Draw(title, new Rectangle((graphics.PreferredBackBufferWidth / 10) - (graphics.PreferredBackBufferWidth / 15), (graphics.PreferredBackBufferHeight / 12) - graphics.PreferredBackBufferHeight / 15, (5 * graphics.PreferredBackBufferWidth / 9), (5 * graphics.PreferredBackBufferHeight / 9)), Color.White);
@@ -812,6 +891,7 @@ namespace SuperTank
                     btnArray[2].Draw(spriteBatch);
                     break;
                 case GameState.Lose:
+                    //Draw losing screen.
                     spriteBatch.Draw(GameOver, new Rectangle((graphics.PreferredBackBufferWidth / 2) - GameOver.Width / 2, (graphics.PreferredBackBufferHeight / 2) - GameOver.Height / 2, GameOver.Width, GameOver.Height), Color.White);
                     spriteBatch.DrawString(
                         pericles20,
@@ -820,13 +900,16 @@ namespace SuperTank
                         Color.DarkRed);
                     break;
                 case GameState.Controls:
+                    //Draw controls screen.
                     spriteBatch.Draw(controlsBackground, new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight), Color.White);
                     ctrlsTutorial.Draw(spriteBatch);
                     btnBack.Draw(spriteBatch);
                     break;
                 case GameState.Tutorial:
+                    //Draw map in background.
                     m1.Draw(spriteBatch);
 
+                    //Draw tutorial messages.
                     spriteBatch.Draw(wizard, new Rectangle(graphics.PreferredBackBufferWidth / 8, graphics.PreferredBackBufferHeight / 4, (2 * wizard.Width / 3), (2 * wizard.Height / 3)), Color.White);
                     spriteBatch.Draw(speechBubble, new Rectangle(graphics.PreferredBackBufferWidth / 4, graphics.PreferredBackBufferHeight / 5, (3 * speechBubble.Width / 4), (3 * speechBubble.Height / 4)), Color.White);
 
@@ -880,6 +963,7 @@ namespace SuperTank
                     }
                     break;
                 case GameState.Win:
+                    //Draw map and tanks in background, draw winning message.
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
                     for (int i = 0; i < 3; i++)
@@ -903,26 +987,30 @@ namespace SuperTank
                         Color.White);
                     break;
                 case GameState.Play:
+                    //Draw play state.
+                    //Draw map and tanks.
                     m1.Draw(spriteBatch);
                     t1.Draw(spriteBatch);
                     for (int i = 0; i <3; i++)
                     {
                         if (ets[i].LivesRemaining > 0)
                         {
-                            ets[i].Draw(spriteBatch);
+                            ets[i].Draw(spriteBatch); //if tanks is alive, draw full tank.
                         }
 
                         else
                         {
                             ets[i].DrawDead(spriteBatch);
-                            explosions[i].Draw(spriteBatch);
+                            explosions[i].Draw(spriteBatch); //If tank is dead, draw darker chassis and particle effects.
                         }
                     }
 
+                    //Draw targeting reticle.
                     spriteBatch.Draw(reticle, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), new Rectangle(0, 0, 9, 9), Color.White, 0f, new Vector2(9 / 2, 9 / 2), 1.0f, SpriteEffects.None, 0);
-
+                    //Draw frame for heads-up display.
                     spriteBatch.Draw(frame, new Vector2(0,720), new Rectangle(0, 0, frame.Width, frame.Height), Color.White, 0f, new Vector2(0,0), 1.0f, SpriteEffects.None, 0);
 
+                    //Draw HUD data.
                     int k = 1;
 
                     for (int i = 0; i < 3; i++)
@@ -941,15 +1029,15 @@ namespace SuperTank
                         currentGameState = GameState.Win;
                     }
 
+                    //Draw all active bullets.
                     foreach (Bullet b in bm.Bullets)
                     {
-                        if (b.LifeTime <91/*< 521*/)
+                        if (b.LifeTime <91) //Delay drawing of bullet by a tiny bit so it first appears at the cannon's tip.
                         {
                             b.Draw(spriteBatch);
                         }
                     }
 
-                    
                     spriteBatch.DrawString(
                         pericles20,
                         " X " + t1.livesRemaining.ToString(),

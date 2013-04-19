@@ -1,4 +1,6 @@
-﻿using System;
+﻿//The Particle and ParticleSystem classes were based on the following tutorial: http://rbwhitaker.wikidot.com/2d-particle-engine-1
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +20,7 @@ namespace SuperTank
         public float size { get; set; }
         public int timeToLive { get; set; }
 
+        //Particle constructor.
         public Particle(Texture2D image, Vector2 position, Vector2 velocity,
             float angle, float angularVelocity, Color color, float size, int timeToLive)
         {
@@ -31,6 +34,7 @@ namespace SuperTank
             this.timeToLive = timeToLive;
         }
 
+        //Updates this particle.
         public void Update()
         {
             timeToLive--;
@@ -38,6 +42,7 @@ namespace SuperTank
             angle += angularVelocity;
         }
 
+        //Draw particles.
         public void Draw(SpriteBatch spriteBatch)
         {
             Rectangle sourceRectangle = new Rectangle(0, 0, image.Width, image.Height);
